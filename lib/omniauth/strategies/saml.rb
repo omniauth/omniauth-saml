@@ -12,7 +12,7 @@ module OmniAuth
       @@settings = {}
 
       def initialize(app, options={})
-        super(app, :saml)
+        super( app, (options[:name] || :saml) )
         @@settings = {
           :assertion_consumer_service_url => options[:assertion_consumer_service_url],
           :issuer                         => options[:issuer],
