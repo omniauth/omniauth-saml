@@ -1,4 +1,4 @@
-require 'omniauth/enterprise'
+require 'omniauth'
 
 module OmniAuth
   module Strategies
@@ -9,28 +9,17 @@ module OmniAuth
       autoload :ValidationError,  'omniauth/strategies/saml/validation_error'
       autoload :XMLSecurity,      'omniauth/strategies/saml/xml_security'
 
-      @@settings = {}
-
-      def initialize(app, options={})
-        super( app, (options[:name] || :saml) )
-        @@settings = {
-          :assertion_consumer_service_url => options[:assertion_consumer_service_url],
-          :issuer                         => options[:issuer],
-          :idp_sso_target_url             => options[:idp_sso_target_url],
-          :idp_cert_fingerprint           => options[:idp_cert_fingerprint],
-          :name_identifier_format         => options[:name_identifier_format] || "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
-        }
-      end
+      option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 
       def request_phase
         request = OmniAuth::Strategies::SAML::AuthRequest.new
-        redirect(request.create(@@settings))
+        redirect(request.create(options))
       end
 
       def callback_phase
         begin
           response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['SAMLResponse'])
-          response.settings = @@settings
+          response.settings = options
           @name_id  = response.name_id
           @extra_attributes = response.attributes
           return fail!(:invalid_ticket, 'Invalid SAML Ticket') if @name_id.nil? || @name_id.empty?
@@ -40,13 +29,19 @@ module OmniAuth
         end
       end
 
-      def auth_hash
-        OmniAuth::Utils.deep_merge(super, {
-          'uid' => @name_id,
-          'extra' => @extra_attributes
-        })
+      uid { @name_id }
+
+      info do
+        {
+          :name  => @extra_attributes['urn:oid:0.9.2342.19200300.100.1.1'],
+          :email => @extra_attributes['urn:oid:0.9.2342.19200300.100.1.3']
+        }
       end
+
+      extra { @extra_attributes }
 
     end
   end
 end
+
+OmniAuth.config.add_camelization 'saml', 'SAML'

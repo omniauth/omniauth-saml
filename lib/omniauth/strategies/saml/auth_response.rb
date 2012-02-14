@@ -35,7 +35,7 @@ module OmniAuth
           end
         end
 
-        # A hash of alle the attributes with the response. Assuming there is only one value for each key
+        # A hash of all the attributes with the response. Assuming there is only one value for each key
         def attributes
           @attr_statements ||= begin
             result = {}
