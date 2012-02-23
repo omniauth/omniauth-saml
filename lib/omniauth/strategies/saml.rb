@@ -21,7 +21,7 @@ module OmniAuth
           response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['SAMLResponse'])
           response.settings = options
           @name_id  = response.name_id
-          @extra_attributes = response.attributes
+          @attributes = response.attributes
           return fail!(:invalid_ticket, 'Invalid SAML Ticket') if @name_id.nil? || @name_id.empty?
           super
         rescue ArgumentError => e
@@ -33,12 +33,14 @@ module OmniAuth
 
       info do
         {
-          :name  => @extra_attributes['urn:oid:0.9.2342.19200300.100.1.1'],
-          :email => @extra_attributes['urn:oid:0.9.2342.19200300.100.1.3']
+          :name  => @attributes[:name],
+          :email => @attributes[:email] || @attributes[:mail],
+          :first_name => @attributes[:first_name] || @attributes[:firstname],
+          :last_name => @attributes[:last_name] || @attributes[:lastname]
         }
       end
 
-      extra { @extra_attributes }
+      extra { { :raw_info => @attributes } }
 
     end
   end
