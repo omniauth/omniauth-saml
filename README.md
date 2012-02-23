@@ -12,6 +12,7 @@ use OmniAuth::Strategies::SAML,
   :assertion_consumer_service_url => "consumer_service_url",
   :issuer                         => "issuer",
   :idp_sso_target_url             => "idp_sso_target_url",
+  :idp_cert                       => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
   :idp_cert_fingerprint           => "E7:91:B2:E1:...",
   :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 ```
@@ -32,6 +33,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     :assertion_consumer_service_url => "consumer_service_url",
     :issuer                         => "rails-application",
     :idp_sso_target_url             => "idp_sso_target_url",
+    :idp_cert                       => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
     :idp_cert_fingerprint           => "E7:91:B2:E1:...",
     :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 end
@@ -49,9 +51,13 @@ end
 * `:idp_sso_target_url` - The URL to which the authentication request should be sent.
   This would be on the identity provider. **Required**.
 
-* `:idp_cert_fingerprint` - The certificate fingerprint, e.g. "90:CC:16:F0:8D:...".
-  This is provided from the identity provider when setting up the relationship.
-  Optional.
+* `:idp_cert` - The identity provider's certificate in PEM format. Takes precedence
+  over the fingerprint option below. This option or `:idp_cert_fingerprint` must
+  be present.
+
+* `:idp_cert_fingerprint` - The SHA1 fingerprint of the certificate, e.g.
+  "90:CC:16:F0:8D:...". This is provided from the identity provider when setting up
+  the relationship. This option or `:idp_cert` must be present.
 
 * `:name_identifier_format` - Describes the format of the username required by this
   application. If you need the email address, use "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress".
