@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/PracticallyGreen/omniauth-saml"
 
   gem.add_runtime_dependency 'omniauth', '~> 1.0'
-  gem.add_runtime_dependency 'XMLCanonicalizer', '~> 1.0.1'
+  gem.add_runtime_dependency 'xmlcanonicalizer'
   gem.add_runtime_dependency 'uuid', '~> 2.3'
 
   gem.files         = ['README.md'] + Dir['lib/**/*.rb']
