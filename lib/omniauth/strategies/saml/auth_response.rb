@@ -18,7 +18,7 @@ module OmniAuth
           self.document = OmniAuth::Strategies::SAML::XMLSecurity::SignedDocument.new(Base64.decode64(response))
         end
 
-        def is_valid?
+        def valid?
           validate(soft = true)
         end
 
@@ -29,39 +29,33 @@ module OmniAuth
         # The value of the user identifier as designated by the initialization request response
         def name_id
           @name_id ||= begin
-            node = REXML::XPath.first(document, "/p:Response/a:Assertion[@ID='#{document.signed_element_id[1,document.signed_element_id.size]}']/a:Subject/a:NameID", { "p" => PROTOCOL, "a" => ASSERTION })
-            node ||=  REXML::XPath.first(document, "/p:Response[@ID='#{document.signed_element_id[1,document.signed_element_id.size]}']/a:Assertion/a:Subject/a:NameID", { "p" => PROTOCOL, "a" => ASSERTION })
-            node.nil? ? nil : node.text
+            node = xpath("/p:Response/a:Assertion[@ID='#{signed_element_id}']/a:Subject/a:NameID")
+            node ||=  xpath("/p:Response[@ID='#{signed_element_id}']/a:Assertion/a:Subject/a:NameID")
+            node.nil? ? nil : strip(node.text)
           end
         end
 
         # A hash of all the attributes with the response. Assuming there is only one value for each key
         def attributes
           @attr_statements ||= begin
-            result = {}
-
-            stmt_element = REXML::XPath.first(document, "/p:Response/a:Assertion/a:AttributeStatement", { "p" => PROTOCOL, "a" => ASSERTION })
+            stmt_element = xpath("/p:Response/a:Assertion/a:AttributeStatement")
             return {} if stmt_element.nil?
 
-            stmt_element.elements.each do |attr_element|
-              name  = attr_element.attributes["Name"]
-              value = attr_element.elements.first.text
+            {}.tap do |result|
+              stmt_element.elements.each do |attr_element|
+                name  = attr_element.attributes["Name"]
+                value = strip(attr_element.elements.first.text)
 
-              result[name] = value
+                result[name] = result[name.to_sym] =  value
+              end
             end
-
-            result.keys.each do |key|
-              result[key.intern] = result[key]
-            end
-
-            result
           end
         end
 
         # When this user session should expire at latest
         def session_expires_at
           @expires_at ||= begin
-            node = REXML::XPath.first(document, "/p:Response/a:Assertion/a:AuthnStatement", { "p" => PROTOCOL, "a" => ASSERTION })
+            node = xpath("/p:Response/a:Assertion/a:AuthnStatement")
             parse_time(node, "SessionNotOnOrAfter")
           end
         end
@@ -69,7 +63,7 @@ module OmniAuth
         # Conditions (if any) for the assertion to run
         def conditions
           @conditions ||= begin
-            REXML::XPath.first(document, "/p:Response/a:Assertion[@ID='#{document.signed_element_id[1,document.signed_element_id.size]}']/a:Conditions", { "p" => PROTOCOL, "a" => ASSERTION })
+            xpath("/p:Response/a:Assertion[@ID='#{signed_element_id}']/a:Conditions")
           end
         end
 
@@ -135,6 +129,19 @@ module OmniAuth
           end
         end
 
+        def strip(string)
+          return string unless string
+          string.gsub(/^\s+/, '').gsub(/\s+$/, '')
+        end
+
+        def xpath(path)
+          REXML::XPath.first(document, path, { "p" => PROTOCOL, "a" => ASSERTION })
+        end
+
+        def signed_element_id
+          doc_id = document.signed_element_id
+          doc_id[1, doc_id.size]
+        end
       end
     end
   end
