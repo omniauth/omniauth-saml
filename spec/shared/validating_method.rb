@@ -62,7 +62,7 @@ shared_examples_for 'a validating method' do |soft|
 
   context "when the current time is before the NotBefore time" do
     before :each do
-      Time.stub(:now).and_return(Time.new(2000, 01, 01, 10, 00, 00))
+      Time.stub(:now).and_return(Time.new(2000, 01, 01, 10, 00, 00, 0))
     end
 
     assert_is_not_valid(soft)
@@ -71,7 +71,7 @@ shared_examples_for 'a validating method' do |soft|
   context "when the current time is after the NotOnOrAfter time" do
     before :each do
       # We're assuming here that this code will be out of use in 1000 years...
-      Time.stub(:now).and_return(Time.new(3012, 01, 01, 10, 00, 00))
+      Time.stub(:now).and_return(Time.new(3012, 01, 01, 10, 00, 00, 0))
     end
 
     assert_is_not_valid(soft)
@@ -79,7 +79,7 @@ shared_examples_for 'a validating method' do |soft|
 
   context "when the current time is between the NotBefore and NotOnOrAfter times" do
     before :each do
-      Time.stub(:now).and_return(Time.new(2012, 3, 8, 16, 25, 00))
+      Time.stub(:now).and_return(Time.new(2012, 3, 8, 16, 25, 00, 0))
     end
 
     assert_is_valid(soft)

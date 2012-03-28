@@ -41,7 +41,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     let(:xml) { :example_response }
 
     before :each do
-      Time.stub(:now).and_return(Time.new(2012, 3, 8, 16, 25))
+      Time.stub(:now).and_return(Time.new(2012, 3, 8, 16, 25, 00, 0))
     end
 
     context "when the response is valid" do
@@ -114,7 +114,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when the time is before the NotBefore date" do
       before :each do
-        Time.stub(:now).and_return(Time.new(2000, 3, 8, 16, 25))
+        Time.stub(:now).and_return(Time.new(2000, 3, 8, 16, 25, 00, 0))
         post_xml
       end
 
@@ -123,7 +123,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when the time is after the NotOnOrAfter date" do
       before :each do
-        Time.stub(:now).and_return(Time.new(3000, 3, 8, 16, 25))
+        Time.stub(:now).and_return(Time.new(3000, 3, 8, 16, 25, 00, 0))
         post_xml
       end
 

@@ -68,7 +68,7 @@ describe OmniAuth::Strategies::SAML::AuthResponse do
 
   describe :session_expires_at do
     it "should return the SessionNotOnOrAfter as a Ruby date" do
-      subject.session_expires_at.to_i.should == Time.new(2012, 04, 8, 12, 0, 24, '+00:00').to_i
+      subject.session_expires_at.to_i.should == Time.new(2012, 04, 8, 12, 0, 24, 0).to_i
     end
   end
 
