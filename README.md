@@ -4,6 +4,13 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/PracticallyGreen/omniauth-saml
 
+## Requirements
+
+* [OmniAuth](http://www.omniauth.org/) 1.0+
+* Ruby 1.9.2
+
+## Usage
+
 Use the SAML strategy as a middleware in your application:
 
 ```ruby
@@ -65,15 +72,18 @@ end
   other options. Note that the identity provider might not support all options.
   Optional.
 
+## Authors
+
+Authored by Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglani, and Steven Anderson.
+
+Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
+
 ## License
 
-Copyright (c) 2011-2012 [Practically Green, Inc.](http://practicallygreen.com/) and [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).  
+Copyright (c) 2011-2012 [Practically Green, Inc.](http://www.practicallygreen.com/).  
 All rights reserved. Released under the MIT license.
 
-Portions Copyright (c) 2007 Sun Microsystems Inc.  
-Portions Copyright (c) 2007 Todd W Saxton.  
-Portions Copyright (c) 2011 Raecoo Cao.  
-Portions Copyright (c) 2011 Ryan Wilcox.
+Portions Copyright (c) 2007 Sun Microsystems Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

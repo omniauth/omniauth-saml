@@ -6,8 +6,8 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{A generic SAML strategy for OmniAuth.}
   gem.description   = %q{A generic SAML strategy for OmniAuth.}
 
-  gem.authors       = ["Raecoo Cao", "Ryan Wilcox", "Rajiv Aaron Manglani"]
-  gem.email         = ["raecoo@gmail.com", "rwilcox@wilcoxd.com", "rajiv@alum.mit.edu"]
+  gem.authors       = ["Raecoo Cao", "Ryan Wilcox", "Rajiv Aaron Manglani", "Steven Anderson"]
+  gem.email         = "rajiv@alum.mit.edu"
   gem.homepage      = "https://github.com/PracticallyGreen/omniauth-saml"
 
   gem.add_runtime_dependency 'omniauth', '~> 1.0'
