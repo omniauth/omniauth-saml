@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    omniauth-saml (0.9.1)
+    omniauth-saml (0.9.3.dev)
       omniauth (~> 1.0)
       uuid (~> 2.3)
       xmlcanonicalizer (= 0.1.1)
@@ -18,11 +18,11 @@ GEM
     guard-rspec (0.6.0)
       guard (>= 0.10.0)
     hashie (1.2.0)
-    macaddr (1.5.0)
-      systemu (>= 2.4.0)
+    macaddr (1.6.0)
+      systemu (~> 2.2.0)
     method_source (0.7.1)
     multi_json (1.1.0)
-    omniauth (1.0.3)
+    omniauth (1.1.0)
       hashie (~> 1.2)
       rack
     pry (0.9.8.4)
@@ -45,7 +45,7 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     slop (2.4.4)
-    systemu (2.4.2)
+    systemu (2.2.0)
     thor (0.14.6)
     uuid (2.3.5)
       macaddr (~> 1.0)

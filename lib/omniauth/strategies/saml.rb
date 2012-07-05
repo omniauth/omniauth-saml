@@ -8,6 +8,7 @@ module OmniAuth
       autoload :AuthResponse,     'omniauth/strategies/saml/auth_response'
       autoload :ValidationError,  'omniauth/strategies/saml/validation_error'
       autoload :XMLSecurity,      'omniauth/strategies/saml/xml_security'
+      autoload :MetadataResponse, 'omniauth/strategies/saml/metadata_response'
 
       option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 
@@ -24,10 +25,19 @@ module OmniAuth
           @name_id  = response.name_id
           @attributes = response.attributes
 
-          return fail!(:invalid_ticket, 'Invalid SAML Ticket') if @name_id.nil? || @name_id.empty? || !response.valid?
+          return fail!(:invalid_ticket) if @name_id.nil? || @name_id.empty? || !response.valid?
           super
         rescue ArgumentError => e
-          fail!(:invalid_ticket, 'Invalid SAML Response')
+          fail!(:invalid_ticket, e)
+        end
+      end
+
+      def other_phase
+        if on_path?("#{request_path}/metadata")
+          response = OmniAuth::Strategies::SAML::MetadataResponse.new
+          Rack::Response.new(response.create(options), 200, { "Content-Type" => "application/xml" })
+        else
+          call_app!
         end
       end
 
