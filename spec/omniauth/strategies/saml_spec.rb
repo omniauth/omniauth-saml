@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec::Matchers.define :fail_with do |message|
   match do |actual|
-    actual.redirect? && actual.location == "/auth/failure?message=#{message}"
+    actual.redirect? && /\?.*message=#{message}/ === actual.location
   end
 end
 
