@@ -1,34 +1,38 @@
 require 'omniauth'
+require 'ruby-saml'
 
 module OmniAuth
   module Strategies
     class SAML
       include OmniAuth::Strategy
-      autoload :AuthRequest,      'omniauth/strategies/saml/auth_request'
-      autoload :AuthResponse,     'omniauth/strategies/saml/auth_response'
-      autoload :ValidationError,  'omniauth/strategies/saml/validation_error'
-      autoload :XMLSecurity,      'omniauth/strategies/saml/xml_security'
 
       option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 
       def request_phase
-        request = OmniAuth::Strategies::SAML::AuthRequest.new
-        redirect(request.create(options))
+        request = Onelogin::Saml::Authrequest.new
+        settings = Onelogin::Saml::Settings.new(options)
+
+        redirect(request.create(settings))
       end
 
       def callback_phase
-        begin
-          response = OmniAuth::Strategies::SAML::AuthResponse.new(request.params['SAMLResponse'])
-          response.settings = options
+        response = Onelogin::Saml::Response.new(request.params['SAMLResponse'])
+        response.settings = Onelogin::Saml::Settings.new(options)
 
-          @name_id  = response.name_id
-          @attributes = response.attributes
+        @name_id = response.name_id
+        @attributes = response.attributes
 
-          return fail!(:invalid_ticket, ValidationError.new('Invalid SAML Ticket')) if @name_id.nil? || @name_id.empty? || !response.valid?
-          super
-        rescue ArgumentError => e
-          fail!(:invalid_ticket, ValidationError.new('Invalid SAML Response'))
+        if @name_id.nil? || @name_id.empty?
+          fail!(:invalid_ticket, OmniAuth::Strategy::SAML::ValidationError.new("SAML response missing 'name_id'"))
         end
+
+        begin
+          response.validate!
+        rescue Onelogin::Saml::ValidationError
+          fail!(:invalid_ticket, $!)
+        end
+
+        super
       end
 
       uid { @name_id }
@@ -43,7 +47,6 @@ module OmniAuth
       end
 
       extra { { :raw_info => @attributes } }
-
     end
   end
 end
