@@ -6,7 +6,7 @@ https://github.com/PracticallyGreen/omniauth-saml
 
 ## Requirements
 
-* [OmniAuth](http://www.omniauth.org/) 1.0+
+* [OmniAuth](http://www.omniauth.org/) 1.1+
 * Ruby 1.9.2
 
 ## Usage
