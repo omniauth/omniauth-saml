@@ -6,7 +6,6 @@ require 'rack/test'
 require 'rexml/document'
 require 'rexml/xpath'
 require 'base64'
-require File.expand_path('../shared/validating_method.rb', __FILE__)
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods

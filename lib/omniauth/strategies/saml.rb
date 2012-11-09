@@ -16,6 +16,10 @@ module OmniAuth
       end
 
       def callback_phase
+        unless request.params['SAMLResponse']
+          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
+        end
+
         response = Onelogin::Saml::Response.new(request.params['SAMLResponse'])
         response.settings = Onelogin::Saml::Settings.new(options)
 
@@ -23,16 +27,16 @@ module OmniAuth
         @attributes = response.attributes
 
         if @name_id.nil? || @name_id.empty?
-          fail!(:invalid_ticket, OmniAuth::Strategy::SAML::ValidationError.new("SAML response missing 'name_id'"))
+          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
         end
 
-        begin
-          response.validate!
-        rescue Onelogin::Saml::ValidationError
-          fail!(:invalid_ticket, $!)
-        end
+        response.validate!
 
         super
+      rescue OmniAuth::Strategies::SAML::ValidationError
+        fail!(:invalid_ticket, $!)
+      rescue Onelogin::Saml::ValidationError
+        fail!(:invalid_ticket, $!)
       end
 
       uid { @name_id }
