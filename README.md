@@ -46,6 +46,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 ```
 
+For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set the `href` of your application's login link to the value of `idp_sso_target_url`. For SP-initiated SSO, link to `/auth/saml`.
+
 ## Options
 
 * `:assertion_consumer_service_url` - The URL at which the SAML assertion should be
@@ -70,7 +72,9 @@ end
   application. If you need the email address, use "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress".
   See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf section 8.3 for
   other options. Note that the identity provider might not support all options.
-  Optional.
+  Used during SP-initiated SSO. Optional.
+
+* See the `Onelogin::Saml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
 ## Authors
 
@@ -80,7 +84,7 @@ Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
 
 ## License
 
-Copyright (c) 2011-2012 [Practically Green, Inc.](http://www.practicallygreen.com/).  
+Copyright (c) 2011-2012 [Practically Green, Inc.](http://www.practicallygreen.com/).
 All rights reserved. Released under the MIT license.
 
 Portions Copyright (c) 2007 Sun Microsystems Inc.

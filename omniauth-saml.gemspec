@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov', '~> 0.6'
   gem.add_development_dependency 'rack-test', '~> 0.6'
 
-  gem.files         = ['README.md'] + Dir['lib/**/*.rb']
+  gem.files         = ['README.md', 'CHANGELOG.md'] + Dir['lib/**/*.rb']
   gem.test_files    = Dir['spec/**/*.rb']
   gem.require_paths = ["lib"]
 end
