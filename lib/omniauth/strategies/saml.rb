@@ -7,12 +7,21 @@ module OmniAuth
       include OmniAuth::Strategy
 
       option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+      option :idp_sso_target_url_runtime_params, {}
 
       def request_phase
-        request = Onelogin::Saml::Authrequest.new
+        runtime_request_parameters = options.delete(:idp_sso_target_url_runtime_params)
+
+        additional_params = {}
+        runtime_request_parameters.each_pair do |request_param_key, mapped_param_key|
+          puts "Inside each param keypair : #{request_param_key} - #{mapped_param_key}"
+          additional_params[mapped_param_key] = request.params[request_param_key.to_s] if request.params.has_key?(request_param_key.to_s)
+        end if runtime_request_parameters
+
+        authn_request = Onelogin::Saml::Authrequest.new
         settings = Onelogin::Saml::Settings.new(options)
 
-        redirect(request.create(settings))
+        redirect(authn_request.create(settings, additional_params))
       end
 
       def callback_phase

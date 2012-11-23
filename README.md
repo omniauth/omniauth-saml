@@ -16,12 +16,13 @@ Use the SAML strategy as a middleware in your application:
 ```ruby
 require 'omniauth'
 use OmniAuth::Strategies::SAML,
-  :assertion_consumer_service_url => "consumer_service_url",
-  :issuer                         => "issuer",
-  :idp_sso_target_url             => "idp_sso_target_url",
-  :idp_cert                       => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
-  :idp_cert_fingerprint           => "E7:91:B2:E1:...",
-  :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+  :assertion_consumer_service_url       => "consumer_service_url",
+  :issuer                               => "issuer",
+  :idp_sso_target_url                   => "idp_sso_target_url",
+  :idp_sso_target_url_runtime_params    => {:original_param => :mapped_param},
+  :idp_cert                             => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
+  :idp_cert_fingerprint                 => "E7:91:B2:E1:...",
+  :name_identifier_format               => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 ```
 
 or in your Rails application:
@@ -37,12 +38,13 @@ and in `config/initializers/omniauth.rb`:
 ```ruby
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :saml,
-    :assertion_consumer_service_url => "consumer_service_url",
-    :issuer                         => "rails-application",
-    :idp_sso_target_url             => "idp_sso_target_url",
-    :idp_cert                       => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
-    :idp_cert_fingerprint           => "E7:91:B2:E1:...",
-    :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+    :assertion_consumer_service_url     => "consumer_service_url",
+    :issuer                             => "rails-application",
+    :idp_sso_target_url                 => "idp_sso_target_url",
+    :idp_sso_target_url_runtime_params  => {:original_param => :mapped_param},
+    :idp_cert                           => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
+    :idp_cert_fingerprint               => "E7:91:B2:E1:...",
+    :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 end
 ```
 
@@ -59,6 +61,11 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
 
 * `:idp_sso_target_url` - The URL to which the authentication request should be sent.
   This would be on the identity provider. **Required**.
+
+* `:idp_sso_target_url_runtime_params` - A dynamic mapping of request params that exist
+  on the request phase of omniauth and you would like to be sent to the IdP with whatever
+  mapping. So for example, a param `foo` with value `bar`, could be sent to the IdP on the
+  login request as `idp_foo` with value `bar`. Optional.
 
 * `:idp_cert` - The identity provider's certificate in PEM format. Takes precedence
   over the fingerprint option below. This option or `:idp_cert_fingerprint` must
