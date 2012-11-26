@@ -14,7 +14,6 @@ module OmniAuth
 
         additional_params = {}
         runtime_request_parameters.each_pair do |request_param_key, mapped_param_key|
-          puts "Inside each param keypair : #{request_param_key} - #{mapped_param_key}"
           additional_params[mapped_param_key] = request.params[request_param_key.to_s] if request.params.has_key?(request_param_key.to_s)
         end if runtime_request_parameters
 
