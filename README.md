@@ -64,8 +64,9 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
 
 * `:idp_sso_target_url_runtime_params` - A dynamic mapping of request params that exist
   on the request phase of omniauth and you would like to be sent to the IdP with whatever
-  mapping. So for example, a param `foo` with value `bar`, could be sent to the IdP on the
-  login request as `idp_foo` with value `bar`. Optional.
+  mapping. So for example, a param `original_request_param` with value `original_param_value`,
+  could be sent to the IdP on the login request as `mapped_idp_param` with value
+  `original_param_value`. Optional.
 
 * `:idp_cert` - The identity provider's certificate in PEM format. Takes precedence
   over the fingerprint option below. This option or `:idp_cert_fingerprint` must
