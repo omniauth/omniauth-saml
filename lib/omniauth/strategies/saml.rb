@@ -35,7 +35,7 @@ module OmniAuth
       def other_phase
         if on_path?("#{request_path}/metadata")
           response = OmniAuth::Strategies::SAML::MetadataResponse.new
-          Rack::Response.new(response.create(options), 200, { "Content-Type" => "application/xml" })
+          Rack::Response.new(response.create(options), 200, { "Content-Type" => "application/xml" }).finish
         else
           call_app!
         end
