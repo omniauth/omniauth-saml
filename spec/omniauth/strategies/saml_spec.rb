@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec::Matchers.define :fail_with do |message|
   match do |actual|
-    actual.redirect? && actual.location == "/auth/failure?message=#{message}&strategy=saml"
+    actual.redirect? && /\?.*message=#{message}/ === actual.location
   end
 end
 
@@ -19,7 +19,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       :assertion_consumer_service_url => "http://localhost:3000/auth/saml/callback",
       :issuer                         => "https://saml.issuer.url/issuers/29490",
       :idp_sso_target_url             => "https://idp.sso.target_url/signon/29490",
-      :idp_cert_fingerprint           => "E6:87:89:FB:F2:5F:CD:B0:31:32:7E:05:44:84:53:B1:EC:4E:3F:FA",
+      :idp_cert_fingerprint           => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
       :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
     }
   end
@@ -41,7 +41,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     let(:xml) { :example_response }
 
     before :each do
-      Time.stub(:now).and_return(Time.new(2012, 3, 8, 16, 25, 00, 0))
+      Time.stub(:now).and_return(Time.new(2012, 11, 8, 20, 40, 00, 0))
     end
 
     context "when the response is valid" do
@@ -50,23 +50,15 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the uid to the nameID in the SAML response" do
-        auth_hash['uid'].should == 'THISISANAMEID'
+        auth_hash['uid'].should == '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
       end
 
       it "should set the raw info to all attributes" do
         auth_hash['extra']['raw_info'].to_hash.should == {
-          'forename' => 'Steven',
-          'surname' => 'Anderson',
-          'address_1' => '24 Made Up Drive',
-          'address_2' => nil,
-          'companyName' => 'Test Company Ltd',
-          'postcode' => 'XX2 4XX',
-          'city' => 'Newcastle',
-          'country' => 'United Kingdom',
-          'userEmailID' => 'steve@example.com',
-          'county' => 'TYNESIDE',
-          'versionID' => '1',
-          'bundleID' => '1'
+          'first_name'   => 'Rajiv',
+          'last_name'    => 'Manglani',
+          'email'        => 'user@example.com',
+          'company_name' => 'Example Company'
         }
       end
     end
@@ -89,7 +81,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when the fingerprint is invalid" do
       before :each do
-        saml_options[:idp_cert_fingerprint] = "E6:87:89:FB:F2:5F:CD:B0:31:32:7E:05:44:84:53:B1:EC:4E:3F:FB"
+        saml_options[:idp_cert_fingerprint] = "00:00:00:00:00:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB"
         post_xml
       end
 
@@ -107,24 +99,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when the signature is invalid" do
       before :each do
         post_xml :invalid_signature
-      end
-
-      it { should fail_with(:invalid_ticket) }
-    end
-
-    context "when the time is before the NotBefore date" do
-      before :each do
-        Time.stub(:now).and_return(Time.new(2000, 3, 8, 16, 25, 00, 0))
-        post_xml
-      end
-
-      it { should fail_with(:invalid_ticket) }
-    end
-
-    context "when the time is after the NotOnOrAfter date" do
-      before :each do
-        Time.stub(:now).and_return(Time.new(3000, 3, 8, 16, 25, 00, 0))
-        post_xml
       end
 
       it { should fail_with(:invalid_ticket) }
