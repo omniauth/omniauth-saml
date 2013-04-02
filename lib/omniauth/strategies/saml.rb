@@ -10,8 +10,8 @@ module OmniAuth
 
       def request_phase
         request = Onelogin::Saml::Authrequest.new
+        options[:assertion_consumer_service_url] ||= callback_url
         settings = Onelogin::Saml::Settings.new(options)
-
         redirect(request.create(settings))
       end
 
