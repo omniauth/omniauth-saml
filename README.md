@@ -51,7 +51,7 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
 ## Metadata
 
 To ease the configuration of the SAML SP on IdP side, the required SAML ACS metadata that is needed for
-the IdP configuration can be retrieved from 'http://yourhost.com/auth/saml/metdata'.
+the IdP configuration can be retrieved from 'http://yourhost.com/auth/saml/metadata'.
 Just give this URL to your IdP administrator and he'll be happy..
 
 ## Options
