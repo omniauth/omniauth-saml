@@ -20,7 +20,7 @@ module OmniAuth
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
 
-        response = Onelogin::Saml::Response.new(request.params['SAMLResponse'])
+        response = Onelogin::Saml::Response.new(request.params['SAMLResponse'], options)
         response.settings = Onelogin::Saml::Settings.new(options)
 
         @name_id = response.name_id
