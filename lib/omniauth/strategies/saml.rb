@@ -40,6 +40,9 @@ module OmniAuth
       end
 
       def other_phase
+        #somehow this is not executed on the other_phase...
+        @env['omniauth.strategy'] ||= self
+        setup_phase
         if on_path?("#{request_path}/metadata")
           response = Onelogin::Saml::Metadata.new
           settings = Onelogin::Saml::Settings.new(options)
