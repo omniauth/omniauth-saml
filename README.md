@@ -48,10 +48,16 @@ end
 
 For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set the `href` of your application's login link to the value of `idp_sso_target_url`. For SP-initiated SSO, link to `/auth/saml`.
 
+## Metadata
+
+To ease the configuration of the SAML SP on IdP side, the required SAML ACS metadata that is needed for
+the IdP configuration can be retrieved from 'http://yourhost.com/auth/saml/metadata'.
+Just give this URL to your IdP administrator and he'll be happy..
+
 ## Options
 
 * `:assertion_consumer_service_url` - The URL at which the SAML assertion should be
-  received. With OmniAuth this is typically `http://example.com/auth/callback`.
+  received. With OmniAuth this is typically `http://example.com/auth/saml/callback`.
   **Required**.
 
 * `:issuer` - The name of your application. Some identity providers might need this
