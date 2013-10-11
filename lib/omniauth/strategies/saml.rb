@@ -40,6 +40,7 @@ module OmniAuth
       end
 
       def other_phase
+        setup_phase
         if on_path?("#{request_path}/metadata")
           response = Onelogin::Saml::Metadata.new
           settings = Onelogin::Saml::Settings.new(options)
