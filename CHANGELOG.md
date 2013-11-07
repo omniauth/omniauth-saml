@@ -4,6 +4,9 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/PracticallyGreen/omniauth-saml
 
+
+* add `idp_sso_target_url_runtime_params` option
+
 ## 1.0.0 (2012-11-12)
 
 * remove SAML code and port to ruby-saml gem

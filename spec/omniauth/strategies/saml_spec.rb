@@ -16,22 +16,43 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   let(:auth_hash){ last_request.env['omniauth.auth'] }
   let(:saml_options) do
     {
-      :assertion_consumer_service_url => "http://localhost:3000/auth/saml/callback",
-      :issuer                         => "https://saml.issuer.url/issuers/29490",
-      :idp_sso_target_url             => "https://idp.sso.target_url/signon/29490",
-      :idp_cert_fingerprint           => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
-      :name_identifier_format         => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+      :assertion_consumer_service_url     => "http://localhost:3000/auth/saml/callback",
+      :issuer                             => "https://saml.issuer.url/issuers/29490",
+      :idp_sso_target_url                 => "https://idp.sso.target_url/signon/29490",
+      :idp_cert_fingerprint               => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
+      :idp_sso_target_url_runtime_params  => {:original_param_key => :mapped_param_key},
+      :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
     }
   end
   let(:strategy) { [OmniAuth::Strategies::SAML, saml_options] }
 
   describe 'GET /auth/saml' do
-    before do
-      get '/auth/saml'
+    context 'without idp runtime params present' do
+      before do
+        get '/auth/saml'
+      end
+
+      it 'should get authentication page' do
+        last_response.should be_redirect
+        last_response.location.should match /https:\/\/idp.sso.target_url\/signon\/29490/
+        last_response.location.should match /\?SAMLRequest=/
+        last_response.location.should_not match /mapped_param_key/
+        last_response.location.should_not match /original_param_key/
+      end
     end
 
-    it 'should get authentication page' do
-      last_response.should be_redirect
+    context 'with idp runtime params' do
+      before do
+        get '/auth/saml', 'original_param_key' => 'original_param_value', 'mapped_param_key' => 'mapped_param_value'
+      end
+
+      it 'should get authentication page' do
+        last_response.should be_redirect
+        last_response.location.should match /https:\/\/idp.sso.target_url\/signon\/29490/
+        last_response.location.should match /\?SAMLRequest=/
+        last_response.location.should match /\&mapped_param_key=original_param_value/
+        last_response.location.should_not match /original_param_key/
+      end
     end
   end
 

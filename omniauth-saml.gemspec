@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{A generic SAML strategy for OmniAuth.}
   gem.description   = %q{A generic SAML strategy for OmniAuth.}
 
-  gem.authors       = ["Raecoo Cao", "Ryan Wilcox", "Rajiv Aaron Manglani", "Steven Anderson"]
+  gem.authors       = ["Raecoo Cao", "Ryan Wilcox", "Rajiv Aaron Manglani", "Steven Anderson", "Nikos Dimitrakopoulos"]
   gem.email         = "rajiv@alum.mit.edu"
   gem.homepage      = "https://github.com/PracticallyGreen/omniauth-saml"
 
