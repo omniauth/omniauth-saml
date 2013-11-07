@@ -5,6 +5,7 @@ A generic SAML strategy for OmniAuth.
 https://github.com/PracticallyGreen/omniauth-saml
 
 
+* pass strategy options to the underlying ruby-saml library
 * fallback to omniauth callback url if `assertion_consumer_service_url` is not set
 * add `idp_sso_target_url_runtime_params` option
 
