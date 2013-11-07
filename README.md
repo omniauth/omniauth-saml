@@ -53,8 +53,8 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
 ## Options
 
 * `:assertion_consumer_service_url` - The URL at which the SAML assertion should be
-  received. With OmniAuth this is typically `http://example.com/auth/callback`.
-  **Required**.
+  received. If not provided, defaults to the OmniAuth callback URL (typically
+  `http://example.com/auth/saml/callback`). Optional.
 
 * `:issuer` - The name of your application. Some identity providers might need this
   to establish the identity of the service provider requesting the login. **Required**.
