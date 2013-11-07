@@ -6,7 +6,7 @@ module OmniAuth
     class SAML
       include OmniAuth::Strategy
 
-      option :name_identifier_format, "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+      option :name_identifier_format, nil
       option :idp_sso_target_url_runtime_params, {}
 
       def request_phase

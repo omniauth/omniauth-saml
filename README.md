@@ -76,11 +76,13 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
   "90:CC:16:F0:8D:...". This is provided from the identity provider when setting up
   the relationship. This option or `:idp_cert` must be present.
 
-* `:name_identifier_format` - Describes the format of the username required by this
-  application. If you need the email address, use "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress".
-  See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf section 8.3 for
+* `:name_identifier_format` - Used during SP-initiated SSO. Describes the format of
+  the username required by this application. If you need the email address, use
+  "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress". See
+  http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf section 8.3 for
   other options. Note that the identity provider might not support all options.
-  Used during SP-initiated SSO. Optional.
+  If not specified, the IdP is free to choose the name identifier format used
+  in the response. Optional.
 
 * See the `Onelogin::Saml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
