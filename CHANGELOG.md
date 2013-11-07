@@ -5,6 +5,8 @@ A generic SAML strategy for OmniAuth.
 https://github.com/PracticallyGreen/omniauth-saml
 
 
+## 1.1.0 (2013-11-07)
+
 * no longer set a default `name_identifier_format`
 * pass strategy options to the underlying ruby-saml library
 * fallback to omniauth callback url if `assertion_consumer_service_url` is not set

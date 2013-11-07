@@ -97,8 +97,6 @@ Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
 Copyright (c) 2011-2013 [Practically Green, Inc.](http://www.practicallygreen.com/).
 All rights reserved. Released under the MIT license.
 
-Portions Copyright (c) 2007 Sun Microsystems Inc.
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
