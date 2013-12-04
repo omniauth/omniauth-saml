@@ -48,6 +48,20 @@ module OmniAuth
         fail!(:invalid_ticket, $!)
       end
 
+      def other_phase
+        # omniauth does not set the strategy on the other_phase
+        @env['omniauth.strategy'] ||= self
+        setup_phase
+
+        if on_path?("#{request_path}/metadata")
+          response = Onelogin::Saml::Metadata.new
+          settings = Onelogin::Saml::Settings.new(options)
+          Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
+        else
+          call_app!
+        end
+      end
+
       uid { @name_id }
 
       info do

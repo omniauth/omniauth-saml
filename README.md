@@ -50,6 +50,10 @@ end
 
 For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set the `href` of your application's login link to the value of `idp_sso_target_url`. For SP-initiated SSO, link to `/auth/saml`.
 
+## Metadata
+
+The service provider metadata used to ease configuration of the SAML SP in the IdP can be retrieved from `http://example.com/auth/saml/metadata`. Send this URL to the administrator of the IdP.
+
 ## Options
 
 * `:assertion_consumer_service_url` - The URL at which the SAML assertion should be
@@ -88,7 +92,7 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
 
 ## Authors
 
-Authored by Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglani, Steven Anderson, and Nikos Dimitrakopoulos.
+Authored by Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglani, Steven Anderson, Nikos Dimitrakopoulos, and Rudolf Vriend.
 
 Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
 

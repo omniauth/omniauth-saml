@@ -125,4 +125,15 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       it { should fail_with(:invalid_ticket) }
     end
   end
+
+  describe 'GET /auth/saml/metadata' do
+    before do
+      get '/auth/saml/metadata'
+    end
+
+    it 'should get SP metadata page' do
+      last_response.status.should == 200
+      last_response.header["Content-Type"].should == "application/xml"
+    end
+  end
 end
