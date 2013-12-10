@@ -49,11 +49,11 @@ module OmniAuth
       end
 
       def other_phase
-        # omniauth does not set the strategy on the other_phase
-        @env['omniauth.strategy'] ||= self
-        setup_phase
-
         if on_path?("#{request_path}/metadata")
+          # omniauth does not set the strategy on the other_phase
+          @env['omniauth.strategy'] ||= self
+          setup_phase
+
           response = Onelogin::Saml::Metadata.new
           settings = Onelogin::Saml::Settings.new(options)
           Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
