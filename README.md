@@ -6,8 +6,8 @@ https://github.com/PracticallyGreen/omniauth-saml
 
 ## Requirements
 
-* [OmniAuth](http://www.omniauth.org/) 1.1+
-* Ruby 1.9.2
+* [OmniAuth](http://www.omniauth.org/) 1.2+
+* Ruby 1.9.x or Ruby 2.1.x
 
 ## Usage
 
@@ -98,7 +98,7 @@ Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
 
 ## License
 
-Copyright (c) 2011-2013 [Practically Green, Inc.](http://www.practicallygreen.com/).
+Copyright (c) 2011-2014 [Practically Green, Inc.](http://www.practicallygreen.com/).
 All rights reserved. Released under the MIT license.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
