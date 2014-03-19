@@ -4,7 +4,7 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/PracticallyGreen/omniauth-saml
 
-## master
+## 1.2.0 (2014-03-19)
 
 * provide SP metadata at `/auth/saml/metadata`
 
