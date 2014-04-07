@@ -18,8 +18,8 @@ module OmniAuth
           additional_params[mapped_param_key] = request.params[request_param_key.to_s] if request.params.has_key?(request_param_key.to_s)
         end if runtime_request_parameters
 
-        authn_request = Onelogin::Saml::Authrequest.new
-        settings = Onelogin::Saml::Settings.new(options)
+        authn_request = OneLogin::RubySaml::Authrequest.new
+        settings = OneLogin::RubySaml::Settings.new(options)
 
         redirect(authn_request.create(settings, additional_params))
       end
@@ -29,8 +29,8 @@ module OmniAuth
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
 
-        response = Onelogin::Saml::Response.new(request.params['SAMLResponse'], options)
-        response.settings = Onelogin::Saml::Settings.new(options)
+        response = OneLogin::RubySaml::Response.new(request.params['SAMLResponse'], options)
+        response.settings = OneLogin::RubySaml::Settings.new(options)
 
         @name_id = response.name_id
         @attributes = response.attributes
@@ -44,7 +44,7 @@ module OmniAuth
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
         fail!(:invalid_ticket, $!)
-      rescue Onelogin::Saml::ValidationError
+      rescue OneLogin::RubySaml::ValidationError
         fail!(:invalid_ticket, $!)
       end
 
@@ -54,8 +54,8 @@ module OmniAuth
           @env['omniauth.strategy'] ||= self
           setup_phase
 
-          response = Onelogin::Saml::Metadata.new
-          settings = Onelogin::Saml::Settings.new(options)
+          response = OneLogin::RubySaml::Metadata.new
+          settings = OneLogin::RubySaml::Settings.new(options)
           Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
         else
           call_app!
