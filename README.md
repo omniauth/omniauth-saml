@@ -92,9 +92,7 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 
 ## Authors
 
-Authored by Raecoo Cao, Todd W Saxton, Ryan Wilcox, Rajiv Aaron Manglani, Steven Anderson, Nikos Dimitrakopoulos, and Rudolf Vriend.
-
-Maintained by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/).
+Authored by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/), Raecoo Cao, Todd W Saxton, Ryan Wilcox, Steven Anderson, Nikos Dimitrakopoulos, and Rudolf Vriend.
 
 ## License
 
