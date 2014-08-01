@@ -29,8 +29,8 @@ module OmniAuth
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
 
-        response = Onelogin::Saml::Response.new(request.params['SAMLResponse'], options)
-        response.settings = Onelogin::Saml::Settings.new(options)
+        @response = Onelogin::Saml::Response.new(request.params['SAMLResponse'], options)
+        @response.settings = Onelogin::Saml::Settings.new(options)
 
         @name_id = response.name_id
         @attributes = response.attributes
@@ -39,7 +39,7 @@ module OmniAuth
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
         end
 
-        response.validate!
+        @response.validate!
 
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
@@ -69,7 +69,12 @@ module OmniAuth
           :name  => @attributes[:name],
           :email => @attributes[:email] || @attributes[:mail],
           :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
+          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName],
+          :issuer => @response.issuer,
+          :session_index => @response.sessionindex,
+          :session_not_on_or_after  => @response.session_expires_at,
+          :not_before => @response.not_before,
+          :not_on_or_after => @response.not_on_or_after
         }
       end
 
