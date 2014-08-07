@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    omniauth-saml (1.1.0)
-      omniauth (~> 1.1)
+    omniauth-saml (1.2.0)
+      omniauth (~> 1.2)
       ruby-saml (~> 0.7.3)
 
 GEM
@@ -10,13 +10,13 @@ GEM
   specs:
     canonix (0.1.1)
     diff-lcs (1.2.4)
-    hashie (2.0.5)
-    macaddr (1.6.7)
+    hashie (3.2.0)
+    macaddr (1.7.1)
       systemu (~> 2.6.2)
     multi_json (1.3.7)
     nokogiri (1.5.11)
-    omniauth (1.2.1)
-      hashie (>= 1.2, < 3)
+    omniauth (1.2.2)
+      hashie (>= 1.2, < 4)
       rack (~> 1.0)
     rack (1.5.2)
     rack-test (0.6.2)
