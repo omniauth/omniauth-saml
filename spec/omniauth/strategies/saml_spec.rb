@@ -75,7 +75,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the info hash values" do
-        puts auth_hash['info'].to_hash
         auth_hash['info'].to_hash.should == {
           'name'                    => 'Rajiv Manglani',
           'email'                   => 'user@example.com',
