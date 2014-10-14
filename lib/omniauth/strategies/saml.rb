@@ -30,8 +30,8 @@ module OmniAuth
         end
 
         # Call a fingerprint validation method if there's one
-        if options.idp_cert_fingerprint_validate_method
-          fingerprint_exists = eval(options.idp_cert_fingerprint_validate_method << '(\'' << response_fingerprint << '\')')
+        if options.idp_cert_fingerprint_validator
+          fingerprint_exists = options.idp_cert_fingerprint_validator[response_fingerprint]
           unless fingerprint_exists
             raise OmniAuth::Strategies::SAML::ValidationError.new("Non-existent fingerprint")
           end
