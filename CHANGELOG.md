@@ -4,6 +4,10 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/PracticallyGreen/omniauth-saml
 
+## 1.3.0 (2014-14-10)
+
+* add `idp_cert_fingerprint_validator` option
+
 ## 1.2.0 (2014-03-19)
 
 * provide SP metadata at `/auth/saml/metadata`
