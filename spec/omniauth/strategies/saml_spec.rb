@@ -84,6 +84,27 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
+    context "when fingerprint is empty and there's a fingerprint validator" do
+      before :each do
+        saml_options.delete(:idp_cert_fingerprint)
+        saml_options[:idp_cert_fingerprint_validator] = lambda { |fingerprint| "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB" }
+        post_xml
+      end
+
+      it "should set the uid to the nameID in the SAML response" do
+        auth_hash['uid'].should == '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
+      end
+
+      it "should set the raw info to all attributes" do
+        auth_hash['extra']['raw_info'].to_hash.should == {
+          'first_name'   => 'Rajiv',
+          'last_name'    => 'Manglani',
+          'email'        => 'user@example.com',
+          'company_name' => 'Example Company'
+        }
+      end
+    end
+
     context "when there is no SAMLResponse parameter" do
       before :each do
         post '/auth/saml/callback'
