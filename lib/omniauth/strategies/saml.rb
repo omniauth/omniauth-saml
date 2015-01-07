@@ -29,6 +29,16 @@ module OmniAuth
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
 
+        # Call a fingerprint validation method if there's one
+        if options.idp_cert_fingerprint_validator
+          fingerprint_exists = options.idp_cert_fingerprint_validator[response_fingerprint]
+          unless fingerprint_exists
+            raise OmniAuth::Strategies::SAML::ValidationError.new("Non-existent fingerprint")
+          end
+          # id_cert_fingerprint becomes the given fingerprint if it exists
+          options.idp_cert_fingerprint = fingerprint_exists
+        end
+
         response = Onelogin::Saml::Response.new(request.params['SAMLResponse'], options)
         response.settings = Onelogin::Saml::Settings.new(options)
 
@@ -46,6 +56,18 @@ module OmniAuth
         fail!(:invalid_ticket, $!)
       rescue Onelogin::Saml::ValidationError
         fail!(:invalid_ticket, $!)
+      end
+
+      # Obtain an idp certificate fingerprint from the response.
+      def response_fingerprint
+        response = request.params['SAMLResponse']
+        response = (response =~ /^</) ? response : Base64.decode64(response)
+        document = XMLSecurity::SignedDocument::new(response)
+        cert_element = REXML::XPath.first(document, "//ds:X509Certificate", { "ds"=> 'http://www.w3.org/2000/09/xmldsig#' })
+        base64_cert = cert_element.text
+        cert_text = Base64.decode64(base64_cert)
+        cert = OpenSSL::X509::Certificate.new(cert_text)
+        Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(':')
       end
 
       def other_phase

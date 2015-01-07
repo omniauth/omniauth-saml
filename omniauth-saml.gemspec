@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.email         = 'rajiv@alum.mit.edu'
   gem.homepage      = 'https://github.com/PracticallyGreen/omniauth-saml'
 
-  gem.add_runtime_dependency 'omniauth', '~> 1.2'
+  gem.add_runtime_dependency 'omniauth', '~> 1.1'
   gem.add_runtime_dependency 'ruby-saml', '~> 0.7.3'
 
   gem.add_development_dependency 'rspec', '~> 2.8'
