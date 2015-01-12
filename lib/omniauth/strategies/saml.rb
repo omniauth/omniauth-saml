@@ -89,9 +89,9 @@ module OmniAuth
       info do
         {
           :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
+          :email => @attributes[:email] || @attributes[:mail] || @attributes['User.email'],
+          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName] || @attributes['User.FirstName'],
+          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName] || @attributes['User.LastName']
         }
       end
 
