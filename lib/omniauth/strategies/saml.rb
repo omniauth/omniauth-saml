@@ -88,10 +88,10 @@ module OmniAuth
 
       info do
         {
-          :name  => @attributes[:name] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
-          :email => @attributes[:email] || @attributes[:mail] || @attributes['User.email'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName] || @attributes['User.FirstName'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName] || @attributes['User.LastName'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname']
+          :name  => @attributes['FullName'] || @attributes[:name] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+          :email => @attributes['EmailAddress'] || @attributes[:email] || @attributes[:mail] || @attributes['User.email'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+          :first_name => @attributes['FirstName'] || @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName] || @attributes['User.FirstName'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
+          :last_name => @attributes['LastName'] || @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName] || @attributes['User.LastName'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname']
         }
       end
 
