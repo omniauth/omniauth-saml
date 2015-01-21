@@ -18,8 +18,8 @@ module OmniAuth
           additional_params[mapped_param_key] = request.params[request_param_key.to_s] if request.params.has_key?(request_param_key.to_s)
         end if runtime_request_parameters
 
-        authn_request = Onelogin::Saml::Authrequest.new
-        settings = Onelogin::Saml::Settings.new(options)
+        authn_request = OneLogin::RubySaml::Authrequest.new
+        settings = OneLogin::RubySaml::Settings.new(options)
 
         redirect(authn_request.create(settings, additional_params))
       end
@@ -39,8 +39,8 @@ module OmniAuth
           options.idp_cert_fingerprint = fingerprint_exists
         end
 
-        response = Onelogin::Saml::Response.new(request.params['SAMLResponse'], options)
-        response.settings = Onelogin::Saml::Settings.new(options)
+        response = OneLogin::RubySaml::Response.new(request.params['SAMLResponse'], options)
+        response.settings = OneLogin::RubySaml::Settings.new(options)
 
         @name_id = response.name_id
         @attributes = response.attributes
@@ -54,7 +54,7 @@ module OmniAuth
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
         fail!(:invalid_ticket, $!)
-      rescue Onelogin::Saml::ValidationError
+      rescue OneLogin::RubySaml::ValidationError
         fail!(:invalid_ticket, $!)
       end
 
@@ -76,8 +76,8 @@ module OmniAuth
           @env['omniauth.strategy'] ||= self
           setup_phase
 
-          response = Onelogin::Saml::Metadata.new
-          settings = Onelogin::Saml::Settings.new(options)
+          response = OneLogin::RubySaml::Metadata.new
+          settings = OneLogin::RubySaml::Settings.new(options)
           Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
         else
           call_app!
@@ -88,10 +88,10 @@ module OmniAuth
 
       info do
         {
-          :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
+          :name  => @attributes['FullName'] || @attributes[:name] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+          :email => @attributes['EmailAddress'] || @attributes[:email] || @attributes[:mail] || @attributes['User.email'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+          :first_name => @attributes['FirstName'] || @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName] || @attributes['User.FirstName'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
+          :last_name => @attributes['LastName'] || @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName] || @attributes['User.LastName'] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname']
         }
       end
 
