@@ -89,9 +89,11 @@ module OmniAuth
       info do
         {
           :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
+          :account_name => @attributes['http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname'],
+          :email => @attributes[:email] || @attributes[:mail] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
+          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName] || @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'],
+          :roles => @attributes.multi('http://schemas.microsoft.com/ws/2008/06/identity/claims/role')
         }
       end
 
