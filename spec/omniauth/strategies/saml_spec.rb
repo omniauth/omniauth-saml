@@ -79,7 +79,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           'first_name'   => 'Rajiv',
           'last_name'    => 'Manglani',
           'email'        => 'user@example.com',
-          'company_name' => 'Example Company'
+          'company_name' => 'Example Company',
+          'fingerprint'  => saml_options[:idp_cert_fingerprint]
         }
       end
     end
@@ -100,7 +101,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           'first_name'   => 'Rajiv',
           'last_name'    => 'Manglani',
           'email'        => 'user@example.com',
-          'company_name' => 'Example Company'
+          'company_name' => 'Example Company',
+          'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
         }
       end
     end
