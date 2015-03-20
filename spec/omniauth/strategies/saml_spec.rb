@@ -75,11 +75,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the raw info to all attributes" do
-        auth_hash['extra']['raw_info'].to_hash.should == {
-          'first_name'   => 'Rajiv',
-          'last_name'    => 'Manglani',
-          'email'        => 'user@example.com',
-          'company_name' => 'Example Company',
+        auth_hash['extra']['raw_info'].to_h.should == {
+          'first_name'   => ['Rajiv'],
+          'last_name'    => ['Manglani'],
+          'email'        => ['user@example.com'],
+          'company_name' => ['Example Company'],
           'fingerprint'  => saml_options[:idp_cert_fingerprint]
         }
       end
@@ -97,11 +97,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the raw info to all attributes" do
-        auth_hash['extra']['raw_info'].to_hash.should == {
-          'first_name'   => 'Rajiv',
-          'last_name'    => 'Manglani',
-          'email'        => 'user@example.com',
-          'company_name' => 'Example Company',
+        auth_hash['extra']['raw_info'].to_h.should == {
+          'first_name'   => ['Rajiv'],
+          'last_name'    => ['Manglani'],
+          'email'        => ['user@example.com'],
+          'company_name' => ['Example Company'],
           'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
         }
       end
