@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.description   = 'A generic SAML strategy for OmniAuth.'
   gem.license       = 'MIT'
 
-  gem.authors       = ['Raecoo Cao', 'Ryan Wilcox', 'Rajiv Aaron Manglani', 'Steven Anderson', 'Nikos Dimitrakopoulos', 'Rudolf Vriend']
+  gem.authors       = ['Raecoo Cao', 'Ryan Wilcox', 'Rajiv Aaron Manglani', 'Steven Anderson', 'Nikos Dimitrakopoulos', 'Rudolf Vriend', 'Bruno Pedro']
   gem.email         = 'rajiv@alum.mit.edu'
   gem.homepage      = 'https://github.com/PracticallyGreen/omniauth-saml'
 
