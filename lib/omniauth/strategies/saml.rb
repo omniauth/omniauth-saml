@@ -50,7 +50,9 @@ module OmniAuth
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
         end
 
-        response.validate!
+        # will raise an error since we are not in soft mode
+        response.soft = false
+        response.is_valid?
 
         super
       rescue OmniAuth::Strategies::SAML::ValidationError

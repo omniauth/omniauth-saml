@@ -17,7 +17,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   let(:saml_options) do
     {
       :assertion_consumer_service_url     => "http://localhost:3000/auth/saml/callback",
-      :issuer                             => "https://saml.issuer.url/issuers/29490",
       :idp_sso_target_url                 => "https://idp.sso.target_url/signon/29490",
       :idp_cert_fingerprint               => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
       :idp_sso_target_url_runtime_params  => {:original_param_key => :mapped_param_key},
@@ -75,11 +74,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the raw info to all attributes" do
-        auth_hash['extra']['raw_info'].to_hash.should == {
-          'first_name'   => 'Rajiv',
-          'last_name'    => 'Manglani',
-          'email'        => 'user@example.com',
-          'company_name' => 'Example Company',
+        auth_hash['extra']['raw_info'].all.to_hash.should == {
+          'first_name'   => ['Rajiv'],
+          'last_name'    => ['Manglani'],
+          'email'        => ['user@example.com'],
+          'company_name' => ['Example Company'],
           'fingerprint'  => saml_options[:idp_cert_fingerprint]
         }
       end
@@ -97,11 +96,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the raw info to all attributes" do
-        auth_hash['extra']['raw_info'].to_hash.should == {
-          'first_name'   => 'Rajiv',
-          'last_name'    => 'Manglani',
-          'email'        => 'user@example.com',
-          'company_name' => 'Example Company',
+        auth_hash['extra']['raw_info'].all.to_hash.should == {
+          'first_name'   => ['Rajiv'],
+          'last_name'    => ['Manglani'],
+          'email'        => ['user@example.com'],
+          'company_name' => ['Example Company'],
           'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
         }
       end
