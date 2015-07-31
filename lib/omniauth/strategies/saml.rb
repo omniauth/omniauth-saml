@@ -9,6 +9,7 @@ module OmniAuth
       option :name_identifier_format, nil
       option :idp_sso_target_url_runtime_params, {}
       option :compress_request, nil
+      option :force_authn, nil
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
