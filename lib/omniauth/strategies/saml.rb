@@ -8,6 +8,13 @@ module OmniAuth
 
       option :name_identifier_format, nil
       option :idp_sso_target_url_runtime_params, {}
+      option :request_attributes, [
+        { name: 'email', name_format: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', friendly_name: 'Email address' },
+        { name: 'name', name_format: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', friendly_name: 'Full name' },
+        { name: 'first_name', name_format: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', friendly_name: 'Given name' },
+        { name: 'last_name', name_format: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', friendly_name: 'Family name' }
+      ]
+      option :attribute_service_name, 'Required attributes'
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -81,6 +88,12 @@ module OmniAuth
 
           response = OneLogin::RubySaml::Metadata.new
           settings = OneLogin::RubySaml::Settings.new(options)
+          if options.request_attributes.length > 0
+            settings.attribute_consuming_service.service_name options.attribute_service_name
+            options.request_attributes.each do |attribute|
+              settings.attribute_consuming_service.add_attribute attribute
+            end
+          end
           Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
         else
           call_app!
