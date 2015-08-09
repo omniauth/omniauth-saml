@@ -94,7 +94,29 @@ The service provider metadata used to ease configuration of the SAML SP in the I
   If not specified, the IdP is free to choose the name identifier format used
   in the response. Optional.
 
+* `:request_attributes` - Used to build the metadata file to inform the IdP to send certain attributes
+  along with the SAMLResponse messages. Defaults to requesting `name`, `first_name`, `last_name` and `email`
+  attributes. See the `OneLogin::RubySaml::AttributeService` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for the available options for each attribute. Set to `{}` to disable this from metadata.
+
+* `:attribute_service_name` - Name for the attribute service. Defaults to `Required attributes`.
+
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
+
+## Devise Integration
+
+Straightforward integration with [Devise](https://github.com/plataformatec/devise), the widely-used authentication solution for Rails.
+
+In `config/initializers/devise.rb`:
+
+```ruby
+Devise.setup do |config|
+  config.omniauth :saml,
+    idp_cert_fingerprint: 'fingerprint',
+    idp_sso_target_url: 'target_url'
+end
+```
+
+Then follow Devise's general [OmniAuth tutorial](https://github.com/plataformatec/devise/wiki/OmniAuth:-Overview), replacing references to `facebook` with `saml`.
 
 ## Authors
 
