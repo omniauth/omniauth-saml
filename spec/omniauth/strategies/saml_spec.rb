@@ -153,6 +153,27 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       it { should fail_with(:invalid_ticket) }
     end
+
+    context "when response has custom attributes" do
+      before :each do
+        saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
+        saml_options[:attribute_statements] = {
+          email: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+          first_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
+          last_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"]
+        }
+        post_xml :custom_attributes
+      end
+
+      it "should obey attribute statements mapping" do
+        auth_hash[:info].should == {
+          'first_name'   => 'Rajiv',
+          'last_name'    => 'Manglani',
+          'email'        => 'user@example.com',
+          'name'         => nil
+        }
+      end
+    end
   end
 
   describe 'GET /auth/saml/metadata' do
