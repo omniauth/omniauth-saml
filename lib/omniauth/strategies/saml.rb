@@ -112,6 +112,15 @@ module OmniAuth
       end
 
       extra { { :raw_info => @attributes } }
+
+      protected
+
+        # Make a copy of @options when this strategy instance is dup'd in OmniAuth::Strategy#call.
+        # This allows the options to be mutated without affecting subsequent requests.
+        def initialize_copy(orig)
+          super
+          @options = @options.deep_dup
+        end
     end
   end
 end
