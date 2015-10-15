@@ -50,16 +50,16 @@ module OmniAuth
         response.settings = OneLogin::RubySaml::Settings.new(options)
         response.attributes['fingerprint'] = options.idp_cert_fingerprint
 
+        # will raise an error since we are not in soft mode
+        response.soft = false
+        response.is_valid?
+
         @name_id = response.name_id
         @attributes = response.attributes
 
         if @name_id.nil? || @name_id.empty?
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
         end
-
-        # will raise an error since we are not in soft mode
-        response.soft = false
-        response.is_valid?
 
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
