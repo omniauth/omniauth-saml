@@ -17,6 +17,8 @@ module OmniAuth
       option :attribute_service_name, 'Required attributes'
 
       def request_phase
+        session.delete('omniauth.params')
+        puts ">>>>>> request_phase: #{session}"
         options[:assertion_consumer_service_url] ||= callback_url
         runtime_request_parameters = options.delete(:idp_sso_target_url_runtime_params)
 
@@ -32,7 +34,6 @@ module OmniAuth
       end
 
       def callback_phase
-        puts ">>>>>> @env['omniauth.params']: #{@env['omniauth.params']}"
         unless request.params['SAMLResponse']
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
