@@ -1,7 +1,7 @@
 require File.expand_path('../lib/omniauth-saml/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.name          = 'omniauth-saml-cisco'
+  gem.name          = 'omniauth-saml'
   gem.version       = OmniAuth::SAML::VERSION
   gem.summary       = 'A generic SAML strategy for OmniAuth.'
   gem.description   = 'A generic SAML strategy for OmniAuth.'
