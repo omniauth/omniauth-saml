@@ -32,6 +32,7 @@ module OmniAuth
       end
 
       def callback_phase
+        puts ">>>>>> @env['omniauth.params']: #{@env['omniauth.params']}"
         unless request.params['SAMLResponse']
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
