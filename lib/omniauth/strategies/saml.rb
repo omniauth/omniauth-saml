@@ -102,16 +102,18 @@ module OmniAuth
 
       uid { @name_id }
 
-      info do
-        {
-          :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
+      def info
+        @_info  ||= {
+          first_name: @attributes.attributes['First_Name'],
+          last_name:  @attributes.attributes['Last_Name'],
+          email:      @attributes.attributes['Email_Address'],
+          headline:   @attributes.attributes['Job_Role']
         }
       end
 
-      extra { { :raw_info => @attributes } }
+      def extra
+        {}
+      end
     end
   end
 end
