@@ -60,8 +60,25 @@ module OmniAuth
         end
 
         # will raise an error since we are not in soft mode
-        response.soft = false
-        response.is_valid?
+        # response.soft = false
+        # response.is_valid?
+
+        response.soft = true
+        puts ">>>>>> validate_response_state: #{response.send :validate_response_state}"
+        puts ">>>>>> validate_version: #{response.send :validate_version}"
+        puts ">>>>>> validate_id: #{response.send :validate_id}"
+        puts ">>>>>> validate_success_status: #{response.send :validate_success_status}"
+        puts ">>>>>> validate_num_assertion: #{response.send :validate_num_assertion}"
+        puts ">>>>>> validate_no_encrypted_attributes: #{response.send :validate_no_encrypted_attributes}"
+        puts ">>>>>> validate_signed_elements: #{response.send :validate_signed_elements}"
+        puts ">>>>>> validate_structure: #{response.send :validate_structure}"
+        puts ">>>>>> validate_in_response_to: #{response.send :validate_in_response_to}"
+        puts ">>>>>> validate_conditions: #{response.send :validate_conditions}"
+        puts ">>>>>> validate_audience: #{response.send :validate_audience}"
+        puts ">>>>>> validate_issuer: #{response.send :validate_issuer}"
+        puts ">>>>>> validate_session_expiration: #{response.send :validate_session_expiration}"
+        puts ">>>>>> validate_subject_confirmation: #{response.send :validate_subject_confirmation}"
+        puts ">>>>>> validate_signature: #{response.send :validate_signature}"
 
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
