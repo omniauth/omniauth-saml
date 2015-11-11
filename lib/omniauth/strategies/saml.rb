@@ -54,7 +54,6 @@ module OmniAuth
 
         @name_id = response.name_id
         @attributes = response.attributes
-
         if @name_id.nil? || @name_id.empty?
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
         end
@@ -76,6 +75,7 @@ module OmniAuth
         response.send :validate_session_expiration
         response.send :validate_subject_confirmation
 
+         _validate_attributes!
         # NOTE: comment out is_valid? implementation as it fails on validate_signature
         # response.is_valid?
         # response.send :validate_signature
@@ -124,16 +124,28 @@ module OmniAuth
       # Override
       def info
         @_info  ||= {
-          first_name: @attributes.attributes['First_Name'].first,
-          last_name:  @attributes.attributes['Last_Name'].first,
-          email:      @attributes.attributes['Email_Address'].first,
-          headline:   @attributes.attributes['Job_Role'].first
+          first_name: _attr_with_caution('First_Name'),
+          last_name:  _attr_with_caution('Last_Name'),
+          email:      _attr_with_caution('Email_Address'),
+          headline:   _attr_with_caution('Job_Role')
         }
       end
 
       # Override
       def extra
         {}
+      end
+
+      private
+
+      def _validate_attributes!
+        raise OmniAuth::Strategies::SAML::ValidationError.new('Email attribute is missing') if _attr_with_caution('Email_Address').blank?
+      end
+
+      def _attr_with_caution(attr_name)
+        attr_array = @attributes.attributes[attr_name]
+        return nil if attr_array.blank?
+        attr_array.first
       end
     end
   end
