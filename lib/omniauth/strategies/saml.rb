@@ -121,15 +121,17 @@ module OmniAuth
 
       uid { @name_id }
 
+      # Override
       def info
         @_info  ||= {
-          first_name: @attributes.attributes['First_Name'],
-          last_name:  @attributes.attributes['Last_Name'],
-          email:      @attributes.attributes['Email_Address'],
-          headline:   @attributes.attributes['Job_Role']
+          first_name: @attributes.attributes['First_Name'].first,
+          last_name:  @attributes.attributes['Last_Name'].first,
+          email:      @attributes.attributes['Email_Address'].first,
+          headline:   @attributes.attributes['Job_Role'].first
         }
       end
 
+      # Override
       def extra
         {}
       end
