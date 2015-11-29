@@ -60,25 +60,8 @@ module OmniAuth
 
         # will raise an error since we are not in soft mode
         response.soft = false
-        response.send :validate_response_state
-        response.send :validate_version
-        response.send :validate_id
-        response.send :validate_success_status
-        response.send :validate_num_assertion
-        response.send :validate_no_encrypted_attributes
-        response.send :validate_signed_elements
-        response.send :validate_structure
-        response.send :validate_in_response_to
-        response.send :validate_conditions
-        response.send :validate_audience
-        response.send :validate_issuer
-        response.send :validate_session_expiration
-        response.send :validate_subject_confirmation
-
+        response.is_valid?
          _validate_attributes!
-        # NOTE: comment out is_valid? implementation as it fails on validate_signature
-        # response.is_valid?
-        # response.send :validate_signature
 
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
