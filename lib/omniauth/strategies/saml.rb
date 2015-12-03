@@ -137,7 +137,7 @@ module OmniAuth
 
       ALLOWED_DOMAINS = 'cisco.com'
       def _allowed_domain?(email)
-        email =~ Regexp.new "\\A.*@(#{ALLOWED_DOMAINS})\\z"
+        email =~ Regexp.new("\\A.*@(#{ALLOWED_DOMAINS})\\z")
       end
     end
   end
