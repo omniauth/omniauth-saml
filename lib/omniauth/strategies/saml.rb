@@ -61,13 +61,15 @@ module OmniAuth
         # will raise an error since we are not in soft mode
         response.soft = false
         response.is_valid?
-         _validate_attributes!
+         _validate_domain!
 
         super
       rescue OmniAuth::Strategies::SAML::ValidationError
         fail!(:invalid_ticket, $!)
       rescue OneLogin::RubySaml::ValidationError
         fail!(:invalid_ticket, $!)
+      rescue OmniAuth::Strategies::SAML::DomainError
+        fail!(:invalid_domain, $!)
       end
 
       # Obtain an idp certificate fingerprint from the response.
@@ -121,14 +123,21 @@ module OmniAuth
 
       private
 
-      def _validate_attributes!
-        raise OmniAuth::Strategies::SAML::ValidationError.new('Email attribute is missing') if _attr_with_caution('Email_Address').blank?
+      def _validate_domain!
+        email = _attr_with_caution('Email_Address')
+        raise OmniAuth::Strategies::SAML::DomainError.new('Email attribute is missing') unless email
+        raise OmniAuth::Strategies::SAML::DomainError.new('The email domain is forbidden') unless _allowed_domain? email
       end
 
       def _attr_with_caution(attr_name)
         attr_array = @attributes.attributes[attr_name]
         return nil if attr_array.blank?
         attr_array.first
+      end
+
+      ALLOWED_DOMAINS = 'cisco.com'
+      def _allowed_domain?(email)
+        email =~ Regexp.new "\\A.*@(#{ALLOWED_DOMAINS})\\z"
       end
     end
   end
