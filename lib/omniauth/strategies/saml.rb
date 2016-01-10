@@ -106,10 +106,12 @@ module OmniAuth
       # Override
       def info
         @_info  ||= {
-          first_name: _attr_with_caution('First_Name'),
-          last_name:  _attr_with_caution('Last_Name'),
-          email:      _attr_with_caution('Email_Address'),
-          headline:   _attr_with_caution('Job_Role')
+          first_name:   _attr_with_caution('First_Name'),
+          last_name:    _attr_with_caution('Last_Name'),
+          email:        _attr_with_caution('Email_Address'),
+          headline:     _attr_with_caution('Job_Role'),
+          access_level: _attr_with_caution('access_level'),
+          company:      _attr_with_caution('COMPANY_NAME')
         }
       end
 
