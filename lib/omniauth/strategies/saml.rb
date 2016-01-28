@@ -6,6 +6,8 @@ module OmniAuth
     class SAML
       include OmniAuth::Strategy
 
+      OTHER_REQUEST_OPTIONS = [:skip_conditions, :allowed_clock_drift, :matches_request_id, :skip_subject_confirmation].freeze
+
       option :name_identifier_format, nil
       option :idp_sso_target_url_runtime_params, {}
       option :request_attributes, [
@@ -47,7 +49,15 @@ module OmniAuth
         end
 
         settings = OneLogin::RubySaml::Settings.new(options)
-        response = OneLogin::RubySaml::Response.new(request.params['SAMLResponse'], settings: settings)
+        # filter options to select only extra parameters
+        opts = options.select {|k,_| OTHER_REQUEST_OPTIONS.include?(k.to_sym)}
+        # symbolize keys without activeSupport/symbolize_keys (ruby-saml use symbols)
+        opts =
+          opts.inject({}) do |new_hash, (key, value)|
+            new_hash[key.to_sym] = value
+            new_hash
+          end
+        response = OneLogin::RubySaml::Response.new(request.params['SAMLResponse'], opts.merge(settings: settings))
         response.attributes['fingerprint'] = options.idp_cert_fingerprint
 
         @name_id = response.name_id
