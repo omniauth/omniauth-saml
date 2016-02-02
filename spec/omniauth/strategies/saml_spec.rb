@@ -17,7 +17,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   let(:saml_options) do
     {
       :assertion_consumer_service_url     => "http://localhost:3000/auth/saml/callback",
-      :idp_sso_target_url                 => "https://idp.sso.target_url/signon/29490",
+      :idp_sso_target_url                 => "https://idp.sso.example.com/signon/29490",
       :idp_cert_fingerprint               => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
       :idp_sso_target_url_runtime_params  => {:original_param_key => :mapped_param_key},
       :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
@@ -40,7 +40,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       it 'should get authentication page' do
         last_response.should be_redirect
-        last_response.location.should match /https:\/\/idp.sso.target_url\/signon\/29490/
+        last_response.location.should match /https:\/\/idp.sso.example.com\/signon\/29490/
         last_response.location.should match /\?SAMLRequest=/
         last_response.location.should_not match /mapped_param_key/
         last_response.location.should_not match /original_param_key/
@@ -54,10 +54,35 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       it 'should get authentication page' do
         last_response.should be_redirect
-        last_response.location.should match /https:\/\/idp.sso.target_url\/signon\/29490/
+        last_response.location.should match /https:\/\/idp.sso.example.com\/signon\/29490/
         last_response.location.should match /\?SAMLRequest=/
         last_response.location.should match /\&mapped_param_key=original_param_value/
         last_response.location.should_not match /original_param_key/
+      end
+    end
+
+    context "when the assertion_consumer_service_url is the default" do
+      before :each do
+        saml_options[:compress_request] = false
+        saml_options.delete(:assertion_consumer_service_url)
+      end
+
+      it 'should send the current callback_url as the assertion_consumer_service_url' do
+        %w(foo.example.com bar.example.com).each do |host|
+          get "https://#{host}/auth/saml"
+
+          last_response.should be_redirect
+
+          location = URI.parse(last_response.location)
+          query = Rack::Utils.parse_query location.query
+          query.should have_key('SAMLRequest')
+
+          request = REXML::Document.new(Base64.decode64(query['SAMLRequest']))
+          request.root.should_not be_nil
+
+          acs = request.root.attributes.get_attribute('AssertionConsumerServiceURL')
+          acs.to_s.should == "https://#{host}/auth/saml/callback"
+        end
       end
     end
   end
