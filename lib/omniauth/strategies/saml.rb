@@ -114,7 +114,7 @@ module OmniAuth
           [key, attribute]
         end
 
-        found_attributes.to_h
+        Hash[found_attributes]
       end
 
       extra { { :raw_info => @attributes } }
