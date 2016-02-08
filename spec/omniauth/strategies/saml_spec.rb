@@ -93,7 +93,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     let(:xml) { :example_response }
 
     before :each do
-      Time.stub(:now).and_return(Time.new(2012, 11, 8, 20, 40, 00, 0))
+      Time.stub(:now).and_return(Time.utc(2012, 11, 8, 20, 40, 00))
     end
 
     context "when the response is valid" do
