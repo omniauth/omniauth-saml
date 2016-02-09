@@ -104,10 +104,10 @@ module OmniAuth
 
       info do
         {
-          :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
+          :name  => @attributes['http://schemas.microsoft.com/identity/claims/displayname'] || @attributes[:name],
+          :email => @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || @attributes[:email] || @attributes[:mail],
+          :first_name => @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'] || @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
+          :last_name => @attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] || @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
         }
       end
 
