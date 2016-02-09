@@ -1,5 +1,13 @@
-require 'simplecov'
-SimpleCov.start
+if RUBY_VERSION >= '1.9'
+  require 'simplecov'
+
+  if ENV['COVERALLS_REPO_TOKEN']
+    require 'coveralls'
+    Coveralls.wear!
+  end
+
+  SimpleCov.start
+end
 
 require 'omniauth-saml'
 require 'rack/test'
