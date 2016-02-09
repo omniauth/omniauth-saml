@@ -17,7 +17,7 @@ rvm:
   - ruby-head
 gemfile:
   - Gemfile
-  - gemfiles/nokogiri-1.5.gemfile
+  - gemfiles/ruby-1.8.7.gemfile
 matrix:
   exclude:
     - rvm: 1.8.7
@@ -25,9 +25,9 @@ matrix:
     - rvm: jruby-18mode
       gemfile: Gemfile
     - rvm: jruby-19mode
-      gemfile: gemfiles/nokogiri-1.5.gemfile
+      gemfile: gemfiles/ruby-1.8.7.gemfile
     - rvm: jruby-head
-      gemfile: gemfiles/nokogiri-1.5.gemfile
+      gemfile: gemfiles/ruby-1.8.7.gemfile
   allow_failures:
     - rvm: jruby-head
     - rvm: rbx-2
