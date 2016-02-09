@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
 
   gem.authors       = ['Raecoo Cao', 'Ryan Wilcox', 'Rajiv Aaron Manglani', 'Steven Anderson', 'Nikos Dimitrakopoulos', 'Rudolf Vriend', 'Bruno Pedro']
   gem.email         = 'rajiv@alum.mit.edu'
-  gem.homepage      = 'https://github.com/PracticallyGreen/omniauth-saml'
+  gem.homepage      = 'https://github.com/omniauth/omniauth-saml'
 
   gem.add_runtime_dependency 'omniauth', '~> 1.3'
   gem.add_runtime_dependency 'ruby-saml', '~> 1.1', '>= 1.1.1'
