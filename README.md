@@ -14,7 +14,7 @@
 
 A generic SAML strategy for OmniAuth.
 
-https://github.com/PracticallyGreen/omniauth-saml
+https://github.com/omniauth/omniauth-saml
 
 ## Requirements
 
@@ -136,7 +136,8 @@ Authored by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/), Raecoo Cao, T
 
 ## License
 
-Copyright (c) 2011-2014 [Practically Green, Inc.](http://www.practicallygreen.com/).
+Copyright © 2016 Omniauth-SAML maintainers
+Copyright © 2011-2014 [Practically Green, Inc.](http://www.practicallygreen.com/).
 All rights reserved. Released under the MIT license.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
