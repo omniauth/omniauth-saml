@@ -100,6 +100,11 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 
 * `:attribute_service_name` - Name for the attribute service. Defaults to `Required attributes`.
 
+* `:attribute_statements` - Used to map Attribute Names in a SAMLResponse to
+  entries in the OmniAuth [info hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema#schema-10-and-later).
+  For example, if your SAMLResponse first name Attribute is named 'FirstName',
+  set this value to `{:first_name => ['FirstName']}`.
+
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
 ## Devise Integration
