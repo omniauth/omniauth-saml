@@ -1,7 +1,7 @@
 if RUBY_VERSION >= '1.9'
   require 'simplecov'
 
-  if ENV['COVERALLS_REPO_TOKEN']
+  if ENV['TRAVIS']
     require 'coveralls'
     Coveralls.wear!
   end
