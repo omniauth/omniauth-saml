@@ -23,7 +23,7 @@ matrix:
       gemfile: Gemfile
     - rvm: jruby-head
       gemfile: Gemfile
-    - rvm: rbx-2.0
+    - rvm: rbx-2
       gemfile: Gemfile
     - rvm: ruby-head
       gemfile: Gemfile
