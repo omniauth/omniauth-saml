@@ -18,8 +18,8 @@ https://github.com/omniauth/omniauth-saml
 
 ## Requirements
 
-* [OmniAuth](http://www.omniauth.org/) 1.2+
-* Ruby 1.9.x or Ruby 2.1.x
+* [OmniAuth](http://www.omniauth.org/) 1.3+
+* Ruby 1.9.x or Ruby 2.1.x+
 
 ## Usage
 
