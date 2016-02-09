@@ -2,7 +2,7 @@
 
 A generic SAML strategy for OmniAuth.
 
-https://github.com/PracticallyGreen/omniauth-saml
+https://github.com/omniauth/omniauth-saml
 
 ## 1.3.0 (2014-14-10)
 
