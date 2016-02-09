@@ -1,5 +1,17 @@
 # OmniAuth SAML
 
+[![Gem Version](http://img.shields.io/gem/v/omniauth-saml.svg)][gem]
+[![Build Status](http://img.shields.io/travis/omniauth/omniauth-saml.svg)][travis]
+[![Dependency Status](http://img.shields.io/gemnasium/omniauth/omniauth-saml.svg)][gemnasium]
+[![Code Climate](http://img.shields.io/codeclimate/github/omniauth/omniauth-saml.svg)][codeclimate]
+[![Coverage Status](http://img.shields.io/coveralls/omniauth/omniauth-saml.svg)][coveralls]
+
+[gem]: https://rubygems.org/gems/omniauth-saml
+[travis]: http://travis-ci.org/omniauth/omniauth-saml
+[gemnasium]: https://gemnasium.com/omniauth/omniauth-saml
+[codeclimate]: https://codeclimate.com/github/omniauth/omniauth-saml
+[coveralls]: https://coveralls.io/r/omniauth/omniauth-saml
+
 A generic SAML strategy for OmniAuth.
 
 https://github.com/PracticallyGreen/omniauth-saml
