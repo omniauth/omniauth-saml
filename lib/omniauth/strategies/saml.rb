@@ -15,6 +15,12 @@ module OmniAuth
         { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' }
       ]
       option :attribute_service_name, 'Required attributes'
+      option :attribute_statements, {
+        name: ["name"],
+        email: ["email", "mail"],
+        first_name: ["first_name", "firstname", "firstName"],
+        last_name: ["last_name", "lastname", "lastName"]
+      }
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -103,15 +109,23 @@ module OmniAuth
       uid { @name_id }
 
       info do
-        {
-          :name  => @attributes[:name],
-          :email => @attributes[:email] || @attributes[:mail],
-          :first_name => @attributes[:first_name] || @attributes[:firstname] || @attributes[:firstName],
-          :last_name => @attributes[:last_name] || @attributes[:lastname] || @attributes[:lastName]
-        }
+        found_attributes = options.attribute_statements.map do |key, values|
+          attribute = find_attribute_by(values)
+          [key, attribute]
+        end
+
+        Hash[found_attributes]
       end
 
       extra { { :raw_info => @attributes } }
+
+      def find_attribute_by(keys)
+        keys.each do |key|
+          return @attributes[key] if @attributes[key]
+        end
+
+        nil
+      end
     end
   end
 end
