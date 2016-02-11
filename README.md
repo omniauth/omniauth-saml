@@ -118,6 +118,8 @@ The service provider metadata used to ease configuration of the SAML SP in the I
   specify `{:email => ['EmailAddress']}` to map the Attribute to the
   corresponding key in the info hash.  URI-named Attributes are also supported, e.g.
   `{:email => ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']}`.
+  *Note*: All attributes can also be found in an array under `auth_hash[:extra][:raw_info]`,
+  so this setting should only be used to map attributes that are part of the OmniAuth info hash schema.
 
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
