@@ -4,7 +4,34 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/omniauth/omniauth-saml
 
-## 1.3.0 (2014-14-10)
+## 1.5.0 (not yet released)
+
+* Initialize OneLogin::RubySaml::Response instance with settings
+* Adding "settings" to Response Class at initialization to handle signing verification
+* Support custom attributes
+* change URL from PracticallyGreen to omniauth
+* Add specs for ACS fallback URL behavior
+* Call validation earlier to get real error instead of 'response missing name_id'
+* Avoid mutation of the options hash during requests and callbacks
+
+## 1.4.2 (2016-02-09)
+
+* update ruby-saml to 1.1
+
+## 1.4.1 (2015-08-09)
+
+* Configurable attribute_consuming_service
+
+## 1.4.0 (2015-07-23)
+
+* update ruby-saml to 1.0.0
+
+## 1.3.1 (2015-02-26)
+
+* Added missing fingerprint key check
+* Expose fingerprint on the auth_hash
+
+## 1.3.0 (2015-01-23)
 
 * add `idp_cert_fingerprint_validator` option
 
