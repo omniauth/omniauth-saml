@@ -4,7 +4,7 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/omniauth/omniauth-saml
 
-## 1.5.0 (not yet released)
+## 1.5.0 (2016-02-25)
 
 * Initialize OneLogin::RubySaml::Response instance with settings
 * Adding "settings" to Response Class at initialization to handle signing verification
