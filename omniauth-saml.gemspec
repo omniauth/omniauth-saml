@@ -14,9 +14,10 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'omniauth', '~> 1.3'
   gem.add_runtime_dependency 'ruby-saml', '~> 1.1', '>= 1.1.1'
 
-  gem.add_development_dependency 'rspec', '~> 2.8'
-  gem.add_development_dependency 'simplecov', '~> 0.6'
+  gem.add_development_dependency 'rspec', '~>3.4'
+  gem.add_development_dependency 'simplecov', '~> 0.11'
   gem.add_development_dependency 'rack-test', '~> 0.6'
+  gem.add_development_dependency 'coveralls', '~> 0.8'
 
   gem.files         = ['README.md', 'CHANGELOG.md', 'LICENSE.md'] + Dir['lib/**/*.rb']
   gem.test_files    = Dir['spec/**/*.rb']
