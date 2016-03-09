@@ -23,9 +23,5 @@ matrix:
       gemfile: Gemfile
     - rvm: ruby-head
       gemfile: Gemfile
-  allow_failures:
-    - rvm: jruby-head
-    - rvm: rbx-2
-    - rvm: ruby-head
   fast_finish: true
 sudo: false
