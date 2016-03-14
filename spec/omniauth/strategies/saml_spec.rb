@@ -218,4 +218,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       last_response.body.should match /Required attributes/
     end
   end
+
+  it 'implements #on_metadata_path?' do
+    expect(described_class.new(nil)).to respond_to(:on_metadata_path?)
+  end
 end
