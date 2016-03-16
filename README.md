@@ -21,6 +21,10 @@ https://github.com/omniauth/omniauth-saml
 * [OmniAuth](http://www.omniauth.org/) 1.3+
 * Ruby 1.9.x or Ruby 2.1.x+
 
+## Versioning
+
+We tag and release gems according to the [Semantic Versioning](http://semver.org/) principle.
+
 ## Usage
 
 Use the SAML strategy as a middleware in your application:
