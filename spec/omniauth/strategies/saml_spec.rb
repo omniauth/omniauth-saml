@@ -222,4 +222,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   it 'implements #on_metadata_path?' do
     expect(described_class.new(nil)).to respond_to(:on_metadata_path?)
   end
+
+  describe 'subclass behavior' do
+    it 'registers subclasses in OmniAuth.strategies' do
+      subclass = Class.new(described_class)
+      expect(OmniAuth.strategies).to include(described_class, subclass)
+    end
+  end
 end

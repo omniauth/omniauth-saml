@@ -6,6 +6,10 @@ module OmniAuth
     class SAML
       include OmniAuth::Strategy
 
+      def self.inherited(subclass)
+        OmniAuth::Strategy.included(subclass)
+      end
+
       OTHER_REQUEST_OPTIONS = [:skip_conditions, :allowed_clock_drift, :matches_request_id, :skip_subject_confirmation].freeze
 
       option :name_identifier_format, nil
