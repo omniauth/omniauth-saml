@@ -1,7 +1,7 @@
 if RUBY_VERSION >= '1.9'
   require 'simplecov'
 
-  if ENV['TRAVIS']
+  if ENV['CI']
     require 'coveralls'
     Coveralls.wear!
   end
@@ -9,7 +9,7 @@ if RUBY_VERSION >= '1.9'
   SimpleCov.start
 end
 
-require 'omniauth-saml'
+require 'omniauth-signicat'
 require 'rack/test'
 require 'rexml/document'
 require 'rexml/xpath'
@@ -17,9 +17,11 @@ require 'base64'
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
+  config.filter_run :focus
+  config.run_all_when_everything_filtered = true
 end
 
-def load_xml(filename=:example_response)
-  filename = File.expand_path(File.join('..', 'support', "#{filename.to_s}.xml"), __FILE__)
+def load_xml(filename = :example_response)
+  filename = File.expand_path(File.join('..', 'support', "#{filename}.xml"), __FILE__)
   Base64.encode64(IO.read(filename))
 end
