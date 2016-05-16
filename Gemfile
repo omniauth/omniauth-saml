@@ -5,4 +5,10 @@ group :test do
   gem 'mime-types', '< 3'
 end
 
+group :development do
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'rubocop', '0.39.0'
+end
+
 gemspec
