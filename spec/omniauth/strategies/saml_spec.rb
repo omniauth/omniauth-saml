@@ -114,6 +114,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           'fingerprint'  => saml_options[:idp_cert_fingerprint]
         }
       end
+
+      it "should set the response_object to the response object from ruby_saml response" do
+        auth_hash['extra']['response_object'].should be_kind_of(OneLogin::RubySaml::Response)
+      end
     end
 
     context "when fingerprint is empty and there's a fingerprint validator" do

@@ -68,6 +68,8 @@ end
 
 For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set the `href` of your application's login link to the value of `idp_sso_target_url`. For SP-initiated SSO, link to `/auth/saml`.
 
+A `OneLogin::RubySaml::Response` object is added to the `env['omniauth.auth']` extra attribute, so we can use it in the controller via `env['omniauth.auth'].extra.response_object`
+
 ## Metadata
 
 The service provider metadata used to ease configuration of the SAML SP in the IdP can be retrieved from `http://example.com/auth/saml/metadata`. Send this URL to the administrator of the IdP.
