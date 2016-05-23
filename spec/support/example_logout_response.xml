@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<samlp:LogoutResponse xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" InResponseTo="_3fef1069-d0c6-418a-b68d-6f008a4787e9" Version="2.0" ID="_1c7fb9a0-04a0-0134-cd6f-068d68dd383d" IssueInstant="2016-05-25T12:14:10Z">
+  <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">https://idp.sso.example.com/metadata/29490</saml:Issuer>
+  <samlp:Status>
+    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
+    <samlp:StatusMessage>Successfully logged out from service</samlp:StatusMessage>
+  </samlp:Status>
+</samlp:LogoutResponse>

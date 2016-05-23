@@ -27,6 +27,7 @@ module OmniAuth
         first_name: ["first_name", "firstname", "firstName"],
         last_name: ["last_name", "lastname", "lastName"]
       }
+      option :relay_state
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -44,10 +45,6 @@ module OmniAuth
       end
 
       def callback_phase
-        unless request.params['SAMLResponse']
-          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
-        end
-
         # Call a fingerprint validation method if there's one
         if options.idp_cert_fingerprint_validator
           fingerprint_exists = options.idp_cert_fingerprint_validator[response_fingerprint]
@@ -67,21 +64,19 @@ module OmniAuth
             new_hash[key.to_sym] = value
             new_hash
           end
-        response = OneLogin::RubySaml::Response.new(request.params['SAMLResponse'], opts.merge(settings: settings))
-        response.attributes['fingerprint'] = options.idp_cert_fingerprint
 
-        # will raise an error since we are not in soft mode
-        response.soft = false
-        response.is_valid?
-
-        @name_id = response.name_id
-        @attributes = response.attributes
-
-        if @name_id.nil? || @name_id.empty?
-          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
+        if request.params["SAMLResponse"]
+          handle_response(request.params["SAMLResponse"], opts, settings) do
+            super
+          end
+        elsif request.params["SAMLRequest"]
+          handle_request(request.params["SAMLRequest"], settings) do |logout_response|
+            redirect(logout_response)
+          end
+        else
+          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response/request missing")
         end
 
-        super
       rescue OmniAuth::Strategies::SAML::ValidationError
         fail!(:invalid_ticket, $!)
       rescue OneLogin::RubySaml::ValidationError
@@ -100,25 +95,41 @@ module OmniAuth
         Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(':')
       end
 
-      def on_metadata_path?
-        on_path?("#{request_path}/metadata")
+      def on_subpath?(subpath)
+        on_path?("#{request_path}/#{subpath}")
       end
 
       def other_phase
-        if on_metadata_path?
-          # omniauth does not set the strategy on the other_phase
+        if current_path.start_with?(request_path)
           @env['omniauth.strategy'] ||= self
           setup_phase
-
-          response = OneLogin::RubySaml::Metadata.new
           settings = OneLogin::RubySaml::Settings.new(options)
-          if options.request_attributes.length > 0
-            settings.attribute_consuming_service.service_name options.attribute_service_name
-            options.request_attributes.each do |attribute|
-              settings.attribute_consuming_service.add_attribute attribute
+
+          if on_subpath?(:metadata)
+            # omniauth does not set the strategy on the other_phase
+            response = OneLogin::RubySaml::Metadata.new
+            if options.request_attributes.length > 0
+              settings.attribute_consuming_service.service_name options.attribute_service_name
+              options.request_attributes.each do |attribute|
+                settings.attribute_consuming_service.add_attribute attribute
+              end
             end
+            Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
+          elsif on_subpath?(:certificate)
+            if options.certificate
+              Rack::Response.new(options.certificate, 200, { "Content-Type" => "application/x-x509-ca-cert" }).finish
+            else
+              Rack::Response.new("Not Found", 404, { "Content-Type" => "text/html" }).finish
+            end
+          elsif on_subpath?(:slo)
+            if options.idp_slo_target_url
+              redirect(generate_logout_request(settings))
+            else
+              Rack::Response.new("Not Implemented", 501, { "Content-Type" => "text/html" }).finish
+            end
+          else
+            call_app!
           end
-          Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
         else
           call_app!
         end
@@ -143,6 +154,86 @@ module OmniAuth
         end
 
         nil
+      end
+
+      private
+
+      def handle_response(raw_response, opts, settings)
+        response = OneLogin::RubySaml::Response.new(raw_response, opts.merge(settings: settings))
+        response.attributes["fingerprint"] = options.idp_cert_fingerprint
+        response.soft = false
+
+        case response.document.root.name
+        when "Response"
+          response.is_valid?
+          @name_id = response.name_id
+          @attributes = response.attributes
+
+          if @name_id.nil? || @name_id.empty?
+            raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
+          end
+
+          session["saml_uid"] = @name_id
+          yield
+
+        when "LogoutResponse"
+          # After sending an SP initiated LogoutRequest to the IdP, we need to accept
+          # the LogoutResponse, verify it, then actually delete our session.
+
+          logout_response = OneLogin::RubySaml::Logoutresponse.new(raw_response, settings, :matches_request_id => session["saml_transaction_id"])
+          logout_response.soft = false
+          logout_response.validate
+
+          session.delete("saml_uid")
+          session.delete("saml_transaction_id")
+
+          redirect(relay_state)
+
+        else
+          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML failed to process Response or LogoutResponse")
+        end
+      end
+
+      def relay_state
+        if request.params.has_key?("RelayState") && request.params["RelayState"] != ""
+          request.params["RelayState"]
+        else
+          options.relay_state
+        end
+      end
+
+      def handle_request(raw_request, settings)
+        logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request)
+
+        if logout_request.document.root.name == "LogoutRequest" &&
+          logout_request.is_valid? &&
+          logout_request.name_id == session["saml_uid"]
+
+          # Actually log out this session
+          session.clear
+
+          # Generate a response to the IdP.
+          logout_request_id = logout_request.id
+          logout_response = OneLogin::RubySaml::SloLogoutresponse.new.create(settings, logout_request_id, nil, RelayState: relay_state)
+          yield(logout_response)
+        else
+          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML failed to process LogoutRequest")
+        end
+      end
+
+      # Create a SP initiated SLO: https://github.com/onelogin/ruby-saml#single-log-out
+      def generate_logout_request(settings)
+        logout_request = OneLogin::RubySaml::Logoutrequest.new()
+
+        # Since we created a new SAML request, save the transaction_id
+        # to compare it with the response we get back
+        session["saml_transaction_id"] = logout_request.uuid
+
+        if settings.name_identifier_value.nil?
+          settings.name_identifier_value = session["saml_uid"]
+        end
+
+        logout_request.create(settings, RelayState: relay_state)
       end
     end
   end
