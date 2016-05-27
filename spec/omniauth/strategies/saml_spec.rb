@@ -232,16 +232,29 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context "when sp initiated SLO" do
-      it "should redirect to logout request" do
-        saml_options["relay_state"] = "https://example.com/"
-        post "/auth/saml/slo"
+      def test_default_relay_state(static_default_relay_state = nil, &block_default_relay_state)
+        saml_options["default_relay_state"] = static_default_relay_state || block_default_relay_state
+        post "/auth/saml/spslo"
         last_response.should be_redirect
         last_response.location.should match /https:\/\/idp.sso.example.com\/signoff\/29490/
         last_response.location.should match /RelayState=https%3A%2F%2Fexample.com%2F/
       end
+      it "should redirect to logout request" do
+        test_default_relay_state("https://example.com/")
+      end
+      it "should redirect to logout request with a block" do
+        test_default_relay_state do
+          "https://example.com/"
+        end
+      end
+      it "should redirect to logout request with a block with a request parameter" do
+        test_default_relay_state do |request|
+          "https://example.com/"
+        end
+      end
       it "should give not implemented without an idp_slo_target_url" do
         saml_options.delete(:idp_slo_target_url)
-        post "/auth/saml/slo"
+        post "/auth/saml/spslo"
         last_response.status.should == 501
         last_response.body.should match /Not Implemented/
       end
@@ -266,25 +279,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
   end
 
-  describe 'GET /auth/saml/certificate' do
-    it 'should give not found' do
-      saml_options[:certificate] = "Certificate"
-      get '/auth/saml/certificate'
-      last_response.status.should == 200
-      last_response.header["Content-Type"].should == "application/x-x509-ca-cert"
-      last_response.body.should match /Certificate/
-    end
-
-    it 'should give not found' do
-      get '/auth/saml/certificate'
-      last_response.status.should == 404
-      last_response.header["Content-Type"].should == "text/html"
-      last_response.body.should match /Not Found/
-    end
-  end
-
-  it 'implements #on_subpath?' do
-    expect(described_class.new(nil)).to respond_to(:on_subpath?)
+  it 'implements #on_metadata_path?' do
+    expect(described_class.new(nil)).to respond_to(:on_metadata_path?)
   end
 
   describe 'subclass behavior' do

@@ -27,7 +27,7 @@ module OmniAuth
         first_name: ["first_name", "firstname", "firstName"],
         last_name: ["last_name", "lastname", "lastName"]
       }
-      option :relay_state
+      option :default_relay_state
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -95,8 +95,8 @@ module OmniAuth
         Digest::SHA1.hexdigest(cert.to_der).upcase.scan(/../).join(':')
       end
 
-      def on_subpath?(subpath)
-        on_path?("#{request_path}/#{subpath}")
+      def on_metadata_path?
+        on_subpath?(:metadata)
       end
 
       def other_phase
@@ -115,13 +115,7 @@ module OmniAuth
               end
             end
             Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
-          elsif on_subpath?(:certificate)
-            if options.certificate
-              Rack::Response.new(options.certificate, 200, { "Content-Type" => "application/x-x509-ca-cert" }).finish
-            else
-              Rack::Response.new("Not Found", 404, { "Content-Type" => "text/html" }).finish
-            end
-          elsif on_subpath?(:slo)
+          elsif on_subpath?(:spslo)
             if options.idp_slo_target_url
               redirect(generate_logout_request(settings))
             else
@@ -157,6 +151,10 @@ module OmniAuth
       end
 
       private
+
+      def on_subpath?(subpath)
+        on_path?("#{request_path}/#{subpath}")
+      end
 
       def handle_response(raw_response, opts, settings)
         response = OneLogin::RubySaml::Response.new(raw_response, opts.merge(settings: settings))
@@ -198,7 +196,16 @@ module OmniAuth
         if request.params.has_key?("RelayState") && request.params["RelayState"] != ""
           request.params["RelayState"]
         else
-          options.relay_state
+          default_relay_state = options.default_relay_state
+          if default_relay_state.respond_to?(:call)
+            if default_relay_state.arity == 1
+              default_relay_state.call(request)
+            else
+              default_relay_state.call
+            end
+          else
+            default_relay_state
+          end
         end
       end
 
