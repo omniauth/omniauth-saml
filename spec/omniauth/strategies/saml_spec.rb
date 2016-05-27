@@ -17,6 +17,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   let(:saml_options) do
     {
       :assertion_consumer_service_url     => "http://localhost:9080/auth/saml/callback",
+      :single_logout_service_url          => "http://localhost:9080/auth/saml/slo",
       :idp_sso_target_url                 => "https://idp.sso.example.com/signon/29490",
       :idp_slo_target_url                 => "https://idp.sso.example.com/signoff/29490",
       :idp_cert_fingerprint               => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
@@ -205,7 +206,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when response is a logout response" do
       before :each do
         saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
-        post "/auth/saml/callback", {
+        post "/auth/saml/slo", {
           SAMLResponse: load_xml(:example_logout_response),
           RelayState: "https://example.com/",
         }, "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
@@ -219,7 +220,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when request is a logout request" do
       before :each do
         saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
-        post "/auth/saml/callback", {
+        post "/auth/saml/slo", {
           "SAMLRequest" => load_xml(:example_logout_request),
           "RelayState" => "https://example.com/",
         }, "rack.session" => {"saml_uid" => "username@example.com"}
