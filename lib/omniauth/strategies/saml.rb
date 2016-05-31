@@ -155,8 +155,9 @@ module OmniAuth
           if options.metadata_xml.nil?
             settings = OneLogin::RubySaml::Settings.new(options)
           else
+            default_settings = OneLogin::RubySaml::Settings.new(options)
             idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
-            settings = idp_metadata_parser.parse(options.metadata_xml, settings: options)
+            settings = idp_metadata_parser.parse(options.metadata_xml, settings: default_settings)
           end
           if options.request_attributes.length > 0 && settings.attribute_consuming_service
             settings.attribute_consuming_service.service_name options.attribute_service_name

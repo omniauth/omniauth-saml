@@ -294,10 +294,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   describe "GET /auth/saml/metadata" do
     before do
       saml_options[:security] = {
-        security: {
-          digest_method: XMLSecurity::Document::SHA256,
-          signature_method: XMLSecurity::Document::RSA_SHA256,
-        },
+        digest_method: XMLSecurity::Document::SHA256,
+        signature_method: XMLSecurity::Document::RSA_SHA256,
       }
       saml_options[:metadata_xml] = load_file(:example_metadata)
       get "/auth/saml/metadata"
