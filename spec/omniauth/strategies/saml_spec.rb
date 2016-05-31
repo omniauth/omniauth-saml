@@ -290,4 +290,23 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       expect(OmniAuth.strategies).to include(described_class, subclass)
     end
   end
+
+  describe "GET /auth/saml/metadata" do
+    before do
+      saml_options[:security] = {
+        security: {
+          digest_method: XMLSecurity::Document::SHA256,
+          signature_method: XMLSecurity::Document::RSA_SHA256,
+        },
+      }
+      saml_options[:metadata_xml] = load_file(:example_metadata)
+      get "/auth/saml/metadata"
+    end
+    it "should be possible to pass metadata xml for settings" do
+      settings = last_request.env["omniauth.strategy"].send(:settings)
+      expect(settings.idp_sso_target_url).to eq("https://accounts.google.com/o/saml2/idp?idpid=12345678")
+      expect(settings.security[:digest_method]).to eq(XMLSecurity::Document::SHA256)
+      expect(settings.security[:signature_method]).to eq(XMLSecurity::Document::RSA_SHA256)
+    end
+  end
 end

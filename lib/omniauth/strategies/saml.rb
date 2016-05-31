@@ -29,6 +29,9 @@ module OmniAuth
       }
       option :default_relay_state
 
+      # option to parse the metadata xml will override the normal options)
+      option :metadata_xml
+
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
         runtime_request_parameters = options.delete(:idp_sso_target_url_runtime_params)
@@ -39,7 +42,6 @@ module OmniAuth
         end if runtime_request_parameters
 
         authn_request = OneLogin::RubySaml::Authrequest.new
-        settings = OneLogin::RubySaml::Settings.new(options)
 
         redirect(authn_request.create(settings, additional_params))
       end
@@ -55,7 +57,6 @@ module OmniAuth
           options.idp_cert_fingerprint = fingerprint_exists
         end
 
-        settings = OneLogin::RubySaml::Settings.new(options)
         # filter options to select only extra parameters
         opts = options.select {|k,_| OTHER_REQUEST_OPTIONS.include?(k.to_sym)}
         # symbolize keys without activeSupport/symbolize_keys (ruby-saml use symbols)
@@ -66,7 +67,7 @@ module OmniAuth
           end
 
         if request.params["SAMLResponse"]
-          handle_response(request.params["SAMLResponse"], opts, settings) do
+          handle_response(request.params["SAMLResponse"], opts) do
             super
           end
         else
@@ -99,29 +100,22 @@ module OmniAuth
         if current_path.start_with?(request_path)
           @env['omniauth.strategy'] ||= self
           setup_phase
-          settings = OneLogin::RubySaml::Settings.new(options)
 
           if on_metadata_path?
             # omniauth does not set the strategy on the other_phase
             response = OneLogin::RubySaml::Metadata.new
-            if options.request_attributes.length > 0
-              settings.attribute_consuming_service.service_name options.attribute_service_name
-              options.request_attributes.each do |attribute|
-                settings.attribute_consuming_service.add_attribute attribute
-              end
-            end
             Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
           elsif on_subpath?(:slo)
             if request.params["SAMLResponse"]
-              handle_logout_response(request.params["SAMLResponse"], settings)
+              handle_logout_response(request.params["SAMLResponse"])
             elsif request.params["SAMLRequest"]
-              handle_logout_request(request.params["SAMLRequest"], settings)
+              handle_logout_request(request.params["SAMLRequest"])
             else
               raise OmniAuth::Strategies::SAML::ValidationError.new("SAML logout response/request missing")
             end
           elsif on_subpath?(:spslo)
             if options.idp_slo_target_url
-              redirect(generate_logout_request(settings))
+              redirect(generate_logout_request)
             else
               Rack::Response.new("Not Implemented", 501, { "Content-Type" => "text/html" }).finish
             end
@@ -156,11 +150,32 @@ module OmniAuth
 
       private
 
+      def settings
+        @settings ||= begin
+          if options.metadata_xml.nil?
+            settings = OneLogin::RubySaml::Settings.new(options)
+          else
+            idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
+            settings = idp_metadata_parser.parse(options.metadata_xml, settings: options)
+          end
+          if options.request_attributes.length > 0 && settings.attribute_consuming_service
+            settings.attribute_consuming_service.service_name options.attribute_service_name
+            options.request_attributes.each do |attribute|
+              settings.attribute_consuming_service.add_attribute attribute
+            end
+          end
+          if settings.name_identifier_value.nil? && session["saml_uid"]
+            settings.name_identifier_value = session["saml_uid"]
+          end
+          settings
+        end
+      end
+
       def on_subpath?(subpath)
         on_path?("#{request_path}/#{subpath}")
       end
 
-      def handle_response(raw_response, opts, settings)
+      def handle_response(raw_response, opts)
         response = OneLogin::RubySaml::Response.new(raw_response, opts.merge(settings: settings))
         response.attributes["fingerprint"] = options.idp_cert_fingerprint
         response.soft = false
@@ -194,7 +209,7 @@ module OmniAuth
         end
       end
 
-      def handle_logout_response(raw_response, settings)
+      def handle_logout_response(raw_response)
         # After sending an SP initiated LogoutRequest to the IdP, we need to accept
         # the LogoutResponse, verify it, then actually delete our session.
 
@@ -208,7 +223,7 @@ module OmniAuth
         redirect(relay_state)
       end
 
-      def handle_logout_request(raw_request, settings)
+      def handle_logout_request(raw_request)
         logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request)
 
         if logout_request.is_valid? &&
@@ -227,16 +242,12 @@ module OmniAuth
       end
 
       # Create a SP initiated SLO: https://github.com/onelogin/ruby-saml#single-log-out
-      def generate_logout_request(settings)
+      def generate_logout_request
         logout_request = OneLogin::RubySaml::Logoutrequest.new()
 
         # Since we created a new SAML request, save the transaction_id
         # to compare it with the response we get back
         session["saml_transaction_id"] = logout_request.uuid
-
-        if settings.name_identifier_value.nil?
-          settings.name_identifier_value = session["saml_uid"]
-        end
 
         logout_request.create(settings, RelayState: relay_state)
       end
