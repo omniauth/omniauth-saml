@@ -10,7 +10,7 @@ module OmniAuth
         OmniAuth::Strategy.included(subclass)
       end
 
-      OTHER_REQUEST_OPTIONS = [:skip_conditions, :allowed_clock_drift, :matches_request_id, :skip_subject_confirmation].freeze
+      OTHER_REQUEST_OPTIONS = [:skip_conditions, :allowed_clock_drift, :matches_request_id, :skip_subject_confirmation, :soft].freeze
 
       option :name_identifier_format, nil
       option :idp_sso_target_url_runtime_params, {}
@@ -177,7 +177,7 @@ module OmniAuth
       def handle_response(raw_response, opts, settings)
         response = OneLogin::RubySaml::Response.new(raw_response, opts.merge(settings: settings))
         response.attributes["fingerprint"] = options.idp_cert_fingerprint
-        response.soft = false
+        response.soft = opts[:soft] || false
 
         response.is_valid?
         @name_id = response.name_id
