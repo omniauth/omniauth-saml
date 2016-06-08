@@ -84,6 +84,13 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 * `:idp_sso_target_url` - The URL to which the authentication request should be sent.
   This would be on the identity provider. **Required**.
 
+* `:idp_slo_target_url` - The URL to which the single logout request and response should
+  be sent. This would be on the identity provider. Optional.
+
+* `:default_relay_state` - The URL to use as default RelayState on single logouts. The
+  value is the URL and can be configured as a string or a callback that optionally takes
+  the request and results in the URL. This would be on the service provider. Optional.
+
 * `:idp_sso_target_url_runtime_params` - A dynamic mapping of request params that exist
   during the request phase of OmniAuth that should to be sent to the IdP after a specific
   mapping. So for example, a param `original_request_param` with value `original_param_value`,
@@ -142,6 +149,32 @@ end
 ```
 
 Then follow Devise's general [OmniAuth tutorial](https://github.com/plataformatec/devise/wiki/OmniAuth:-Overview), replacing references to `facebook` with `saml`.
+
+## Single Logout
+
+Single Logout can be Service Provider initiated or Identity Provider initiated.
+The SP initiated flow can be integrated in the `SessionsController#destroy`.
+For this to work its important to preserve the `saml_uid` value before Devise
+clears the session and redirect to the spslo subpath to initiate the single logout.
+Example `destroy` action in `sessions_controller.rb`:
+
+```ruby
+class SessionsController < Devise::SessionsController
+  # ...
+
+  def destroy
+    # Preserve the saml_uid in the session
+    saml_uid = session["saml_uid"]
+    super do
+      session["saml_uid"] = saml_uid
+      if ! SAML_SETTINGS.idp_slo_target_url.nil?
+        spslo_url = user_omniauth_authorize_url(:saml) + "/spslo"
+        redirect_to(spslo_url)
+      end
+    end
+  end
+end
+```
 
 ## Authors
 
