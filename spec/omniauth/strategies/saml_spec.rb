@@ -6,8 +6,8 @@ RSpec::Matchers.define :fail_with do |message|
   end
 end
 
-def post_xml(xml=:example_response)
-  post "/auth/saml/callback", {'SAMLResponse' => load_xml(xml)}
+def post_xml(xml=:example_response, opts = {})
+  post "/auth/saml/callback", opts.merge({'SAMLResponse' => load_xml(xml)})
 end
 
 describe OmniAuth::Strategies::SAML, :type => :strategy do
@@ -17,7 +17,9 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   let(:saml_options) do
     {
       :assertion_consumer_service_url     => "http://localhost:9080/auth/saml/callback",
+      :single_logout_service_url          => "http://localhost:9080/auth/saml/slo",
       :idp_sso_target_url                 => "https://idp.sso.example.com/signon/29490",
+      :idp_slo_target_url                 => "https://idp.sso.example.com/signoff/29490",
       :idp_cert_fingerprint               => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
       :idp_sso_target_url_runtime_params  => {:original_param_key => :mapped_param_key},
       :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
@@ -148,6 +150,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when there is no name id in the XML" do
       before :each do
+        Time.stub(:now).and_return(Time.utc(2012, 11, 8, 23, 55, 00))
         post_xml :no_name_id
       end
 
@@ -197,6 +200,64 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           'email'        => 'user@example.com',
           'name'         => nil
         }
+      end
+    end
+
+    context "when response is a logout response" do
+      before :each do
+        saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
+        post "/auth/saml/slo", {
+          SAMLResponse: load_xml(:example_logout_response),
+          RelayState: "https://example.com/",
+        }, "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
+      end
+      it "should redirect to relaystate" do
+        last_response.should be_redirect
+        last_response.location.should match /https:\/\/example.com\//
+      end
+    end
+
+    context "when request is a logout request" do
+      before :each do
+        saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
+        post "/auth/saml/slo", {
+          "SAMLRequest" => load_xml(:example_logout_request),
+          "RelayState" => "https://example.com/",
+        }, "rack.session" => {"saml_uid" => "username@example.com"}
+      end
+      it "should redirect to logout response" do
+        last_response.should be_redirect
+        last_response.location.should match /https:\/\/idp.sso.example.com\/signoff\/29490/
+        last_response.location.should match /RelayState=https%3A%2F%2Fexample.com%2F/
+      end
+    end
+
+    context "when sp initiated SLO" do
+      def test_default_relay_state(static_default_relay_state = nil, &block_default_relay_state)
+        saml_options["default_relay_state"] = static_default_relay_state || block_default_relay_state
+        post "/auth/saml/spslo"
+        last_response.should be_redirect
+        last_response.location.should match /https:\/\/idp.sso.example.com\/signoff\/29490/
+        last_response.location.should match /RelayState=https%3A%2F%2Fexample.com%2F/
+      end
+      it "should redirect to logout request" do
+        test_default_relay_state("https://example.com/")
+      end
+      it "should redirect to logout request with a block" do
+        test_default_relay_state do
+          "https://example.com/"
+        end
+      end
+      it "should redirect to logout request with a block with a request parameter" do
+        test_default_relay_state do |request|
+          "https://example.com/"
+        end
+      end
+      it "should give not implemented without an idp_slo_target_url" do
+        saml_options.delete(:idp_slo_target_url)
+        post "/auth/saml/spslo"
+        last_response.status.should == 501
+        last_response.body.should match /Not Implemented/
       end
     end
   end
