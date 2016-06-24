@@ -4,6 +4,9 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/omniauth/omniauth-saml
 
+## 1.6.0 (Unreleased)
+* Ensure that subclasses of `OmniAuth::Stategies::SAML` are registered with OmniAuth as strategies (https://github.com/omniauth/omniauth-saml/pull/95)
+
 ## 1.5.0 (2016-02-25)
 
 * Initialize OneLogin::RubySaml::Response instance with settings
