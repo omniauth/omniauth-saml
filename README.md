@@ -137,6 +137,9 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 
 * `:uid_attribute` - Attribute that uniquely identifies the user. If unset, the name identifier returned by the IdP is used.
 
+* `:soft` - Used to enable/disable the soft mode. When is set `false` (the
+  default), the SAML validation errors will raise an exception. Setting this to `true` is useful when testing or in environment where you don't want to set up a real SAML server with signed requests. **You should never do this in a production environment**
+
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
 ## Devise Integration
