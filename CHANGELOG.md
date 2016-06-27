@@ -4,7 +4,7 @@ A generic SAML strategy for OmniAuth.
 
 https://github.com/omniauth/omniauth-saml
 
-## 1.6.0 (Unreleased)
+## 1.6.0 (2016-06-27)
 * Ensure that subclasses of `OmniAuth::Stategies::SAML` are registered with OmniAuth as strategies (https://github.com/omniauth/omniauth-saml/pull/95)
 * Update ruby-saml to 1.3 to address [CVE-2016-5697](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-5697) (Signature wrapping attacks)
 
