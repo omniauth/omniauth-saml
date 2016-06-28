@@ -76,6 +76,7 @@ module OmniAuth
 
         @name_id = response.name_id
         @attributes = response.attributes
+        @response_object = response
 
         if @name_id.nil? || @name_id.empty?
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
@@ -135,7 +136,7 @@ module OmniAuth
         Hash[found_attributes]
       end
 
-      extra { { :raw_info => @attributes } }
+      extra { { :raw_info => @attributes, :response_object =>  @response_object } }
 
       def find_attribute_by(keys)
         keys.each do |key|
