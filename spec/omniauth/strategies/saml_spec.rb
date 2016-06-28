@@ -165,6 +165,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it { should fail_with(:invalid_ticket) }
+
+      it "should set session['saml_error'] but not env['omniauth.error'] after redirect" do
+        follow_redirect!
+        last_request.env['omniauth.error'].should be_nil
+        last_request.env["rack.session"]["saml_error"].should == "Fingerprint mismatch"
+      end
     end
 
     context "when the digest is invalid" do
@@ -173,6 +179,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it { should fail_with(:invalid_ticket) }
+
+      it "should set session['saml_error'] but not env['omniauth.error'] after redirect" do
+        follow_redirect!
+        last_request.env['omniauth.error'].should be_nil
+        last_request.env["rack.session"]["saml_error"].should == "Digest mismatch"
+      end
     end
 
     context "when the signature is invalid" do
@@ -181,6 +193,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it { should fail_with(:invalid_ticket) }
+
+      it "should set session['saml_error'] but not env['omniauth.error'] after redirect" do
+        follow_redirect!
+        last_request.env['omniauth.error'].should be_nil
+        last_request.env["rack.session"]["saml_error"].should == "Key validation error"
+      end
     end
 
     context "when response has custom attributes" do

@@ -83,10 +83,12 @@ module OmniAuth
         end
 
         super
-      rescue OmniAuth::Strategies::SAML::ValidationError
-        fail!(:invalid_ticket, $!)
-      rescue OneLogin::RubySaml::ValidationError
-        fail!(:invalid_ticket, $!)
+      rescue OmniAuth::Strategies::SAML::ValidationError => exception
+        session['saml_error'] = exception.to_s
+        fail!(:invalid_ticket, exception)
+      rescue OneLogin::RubySaml::ValidationError => exception
+        session['saml_error'] = exception.to_s
+        fail!(:invalid_ticket, exception)
       end
 
       # Obtain an idp certificate fingerprint from the response.
