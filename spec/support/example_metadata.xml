@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://accounts.google.com/o/saml2?idpid=12345678" validUntil="2021-05-16T13:25:40.000Z">
+  <md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:KeyDescriptor use="signing">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>MIIDBzCCAe+gAwIBAgIJAODJMRzcVaHMMA0GCSqGSIb3DQEBBQUAMBoxGDAWBgNV
+BAMMD3d3dy5leGFtcGxlLmNvbTAeFw0xNjA1MzAxMjIxNTFaFw0yNjA1MjgxMjIx
+NTFaMBoxGDAWBgNVBAMMD3d3dy5leGFtcGxlLmNvbTCCASIwDQYJKoZIhvcNAQEB
+BQADggEPADCCAQoCggEBALi+lWcYrq7oAMGLlzPl10X1dty+sd0ENErgmzIyxwGR
+bAtZu0vTfR832vUhvkNMcHtthCqA9HgrLfVsq0DhMfIKrcBwKUUMcCyukTNKRFZ0
+UugoU6sXflMCjacpeB4/W8sIa5jlzHizMiPl5jvy0bhRKKoQ4vRz+0GvAcKn3M0H
+cSgQERYPF5aCCKK26T84/UBCsm6kb/iX2SJOCiSpmXyHFV/VzE55AlfgQmuSK3Sp
+dRgYGkR+nHe/KFC6BUBnrIRbsTOZTP42wBdkePW+WR5rDOVapSMYoEVokbNBBrfm
+yOeOZt9OL2gvWYxPHqaFpM9U8zzk2wRDMIxKKH3m/QECAwEAAaNQME4wHQYDVR0O
+BBYEFNfdPLDCXVey6De8sdS6g18pYFBKMB8GA1UdIwQYMBaAFNfdPLDCXVey6De8
+sdS6g18pYFBKMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggEBAEfd350p
+/Yn5tn0/uj96k+dn2jRnd2DUOYw6Orm3IAMbuiTa7M37JWVzuHaYP3zaNHhZBPyu
+VEmVmuvOTqbTDK9ki5SdvfzRRdX7wdEw7dc5sKGlnMkC7PDe8V/BlxxQr5m0cj2z
+hGimd3NR/8D5d6H0quiD3mB5UQlz/QU2iwPh8BTKyHONnjgrX30ng+J6MFPZpk5/
+FvYtY592p3neFbYxFdEsMJTWhYB9YrmzEMPNf6w43bTIAWlupwvBasSJ5LmcV7wb
+uBcf+iW/kBCN/Xbo8HdIJKp/AkpUdMHbYoBO1EQu7QALLh55sXgkGuVIiI6uNn31
+GMQ7CW0wTmaOlAk=</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </md:KeyDescriptor>
+    <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://accounts.google.com/o/saml2/idp?idpid=12345678"/>
+    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://accounts.google.com/o/saml2/idp?idpid=12345678"/>
+  </md:IDPSSODescriptor>
+</md:EntityDescriptor>

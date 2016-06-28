@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="_b6a69da0-04a2-0134-ea8a-0a2068490f7d" IssueInstant="2016-05-25T12:32:48" Version="2.0">
+    <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">https://idp.sso.example.com/metadata/29490</saml:Issuer>
+    <saml:NameID xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">username@example.com</saml:NameID>
+</samlp:LogoutRequest>

@@ -19,7 +19,14 @@ RSpec.configure do |config|
   config.include Rack::Test::Methods
 end
 
+def example_file(filename=:example_response)
+  File.expand_path(File.join('..', 'support', "#{filename.to_s}.xml"), __FILE__)
+end
+
+def load_file(filename=:example_response)
+  IO.read(example_file(filename))
+end
+
 def load_xml(filename=:example_response)
-  filename = File.expand_path(File.join('..', 'support', "#{filename.to_s}.xml"), __FILE__)
-  Base64.encode64(IO.read(filename))
+  Base64.encode64(load_file(filename))
 end
