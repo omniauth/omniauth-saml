@@ -39,11 +39,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it 'should get authentication page' do
-        last_response.should be_redirect
-        last_response.location.should match /https:\/\/idp.sso.example.com\/signon\/29490/
-        last_response.location.should match /\?SAMLRequest=/
-        last_response.location.should_not match /mapped_param_key/
-        last_response.location.should_not match /original_param_key/
+        expect(last_response).to be_redirect
+        expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signon\/29490/
+        expect(last_response.location).to match /\?SAMLRequest=/
+        expect(last_response.location).not_to match /mapped_param_key/
+        expect(last_response.location).not_to match /original_param_key/
       end
     end
 
@@ -53,11 +53,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it 'should get authentication page' do
-        last_response.should be_redirect
-        last_response.location.should match /https:\/\/idp.sso.example.com\/signon\/29490/
-        last_response.location.should match /\?SAMLRequest=/
-        last_response.location.should match /\&mapped_param_key=original_param_value/
-        last_response.location.should_not match /original_param_key/
+        expect(last_response).to be_redirect
+        expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signon\/29490/
+        expect(last_response.location).to match /\?SAMLRequest=/
+        expect(last_response.location).to match /\&mapped_param_key=original_param_value/
+        expect(last_response.location).not_to match /original_param_key/
       end
     end
 
@@ -71,17 +71,17 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         %w(foo.example.com bar.example.com).each do |host|
           get "https://#{host}/auth/saml"
 
-          last_response.should be_redirect
+          expect(last_response).to be_redirect
 
           location = URI.parse(last_response.location)
           query = Rack::Utils.parse_query location.query
-          query.should have_key('SAMLRequest')
+          expect(query).to have_key('SAMLRequest')
 
           request = REXML::Document.new(Base64.decode64(query['SAMLRequest']))
-          request.root.should_not be_nil
+          expect(request.root).not_to be_nil
 
           acs = request.root.attributes.get_attribute('AssertionConsumerServiceURL')
-          acs.to_s.should == "https://#{host}/auth/saml/callback"
+          expect(acs.to_s).to eq "https://#{host}/auth/saml/callback"
         end
       end
     end
@@ -93,7 +93,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     let(:xml) { :example_response }
 
     before :each do
-      Time.stub(:now).and_return(Time.utc(2012, 11, 8, 20, 40, 00))
+      allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 20, 40, 00))
     end
 
     context "when the response is valid" do
@@ -102,21 +102,21 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the uid to the nameID in the SAML response" do
-        auth_hash['uid'].should == '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
+        expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
       end
 
       it "should set the raw info to all attributes" do
-        auth_hash['extra']['raw_info'].all.to_hash.should == {
+        expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
           'first_name'   => ['Rajiv'],
           'last_name'    => ['Manglani'],
           'email'        => ['user@example.com'],
           'company_name' => ['Example Company'],
           'fingerprint'  => saml_options[:idp_cert_fingerprint]
-        }
+        )
       end
 
       it "should set the response_object to the response object from ruby_saml response" do
-        auth_hash['extra']['response_object'].should be_kind_of(OneLogin::RubySaml::Response)
+        expect(auth_hash['extra']['response_object']).to be_kind_of(OneLogin::RubySaml::Response)
       end
     end
 
@@ -128,17 +128,17 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the uid to the nameID in the SAML response" do
-        auth_hash['uid'].should == '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
+        expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
       end
 
       it "should set the raw info to all attributes" do
-        auth_hash['extra']['raw_info'].all.to_hash.should == {
+        expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
           'first_name'   => ['Rajiv'],
           'last_name'    => ['Manglani'],
           'email'        => ['user@example.com'],
           'company_name' => ['Example Company'],
           'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
-        }
+        )
       end
     end
 
@@ -195,12 +195,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should obey attribute statements mapping" do
-        auth_hash[:info].should == {
+        expect(auth_hash[:info]).to eq(
           'first_name'   => 'Rajiv',
           'last_name'    => 'Manglani',
           'email'        => 'user@example.com',
           'name'         => nil
-        }
+        )
       end
     end
   end
@@ -211,15 +211,15 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     it 'should get SP metadata page' do
-      last_response.status.should == 200
-      last_response.header["Content-Type"].should == "application/xml"
+      expect(last_response.status).to eq 200
+      expect(last_response.header["Content-Type"]).to eq "application/xml"
     end
 
     it 'should configure attributes consuming service' do
-      last_response.body.should match /AttributeConsumingService/
-      last_response.body.should match /first_name/
-      last_response.body.should match /last_name/
-      last_response.body.should match /Required attributes/
+      expect(last_response.body).to match /AttributeConsumingService/
+      expect(last_response.body).to match /first_name/
+      expect(last_response.body).to match /last_name/
+      expect(last_response.body).to match /Required attributes/
     end
   end
 
