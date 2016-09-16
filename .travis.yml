@@ -1,31 +1,49 @@
 env:
   global:
     - JRUBY_OPTS="$JRUBY_OPTS --debug"
-language: ruby
-script: bundle exec rspec
-before_install: gem update bundler
-matrix:
-  include:
-    - rvm: 1.9.3
-      gemfile: Gemfile
-    - rvm: 2.0.0
-      gemfile: Gemfile
-    - rvm: 2.1
-      gemfile: Gemfile
-    - rvm: 2.2
-      gemfile: Gemfile
-    - rvm: 2.3.0
-      gemfile: Gemfile
-    - rvm: jruby-19mode
-      gemfile: Gemfile
-    - rvm: jruby-head
-      gemfile: Gemfile
-    - rvm: rbx-2
-      gemfile: Gemfile
-    - rvm: ruby-head
-      gemfile: Gemfile
-  allow_failures:
-    - rvm: jruby-head
-    - rvm: ruby-head
-  fast_finish: true
+
 sudo: false
+language: ruby
+cache: bundler
+
+before_install:
+  - gem update bundler
+  
+before_script:
+  - bundle update
+
+script:
+  - bundle exec rspec
+
+rvm:
+  - 1.9.3
+  - jruby-19mode
+  - 2.0.0
+  - 2.1.10
+  - 2.2.2
+  - 2.3.1
+  - jruby-9.0.5.0
+  - ruby-head
+
+gemfile:
+  - gemfiles/rack_1.gemfile
+  - gemfiles/rack_2.gemfile
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+
+  fast_finish: true
+
+  exclude:
+    - rvm: 1.9.3
+      gemfile: gemfiles/rack_2.gemfile
+
+    - rvm: jruby-19mode
+      gemfile: gemfiles/rack_2.gemfile
+
+    - rvm: 2.0.0
+      gemfile: gemfiles/rack_2.gemfile
+
+    - rvm: 2.1.10
+      gemfile: gemfiles/rack_2.gemfile
