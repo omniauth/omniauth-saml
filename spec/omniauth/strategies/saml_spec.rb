@@ -207,6 +207,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
   describe 'GET /auth/saml/metadata' do
     before do
+      saml_options[:issuer] = 'http://example.com/SAML'
       get '/auth/saml/metadata'
     end
 
@@ -220,6 +221,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       expect(last_response.body).to match /first_name/
       expect(last_response.body).to match /last_name/
       expect(last_response.body).to match /Required attributes/
+      expect(last_response.body).to match /entityID/
+      expect(last_response.body).to match /http:\/\/example.com\/SAML/
     end
   end
 

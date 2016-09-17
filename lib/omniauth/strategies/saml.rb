@@ -115,6 +115,7 @@ module OmniAuth
           settings = OneLogin::RubySaml::Settings.new(options)
           if options.request_attributes.length > 0
             settings.attribute_consuming_service.service_name options.attribute_service_name
+            settings.issuer = options.issuer
             options.request_attributes.each do |attribute|
               settings.attribute_consuming_service.add_attribute attribute
             end
