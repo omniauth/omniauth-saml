@@ -66,4 +66,12 @@ feat: create initial CONTRIBUTING.md
 This closes #73
 ```
 
-> **NOTE:** [CHANGELOG.md](CHANGELOG.md) is generated based on the commits.
+## Release process
+
+Example for version `v1.7.0`
+
+1. Bump the version in `lib/omniauth-saml/version.rb`
+1. Update [CHANGELOG.md](CHANGELOG.md) with `bundle exec conventional-changelog version=v1.7.0 since_version=v1.6.0`
+1. Commit all your changes
+1. Tag the latest commit with `git tag v1.7.0`
+1. Contact the maintainers
