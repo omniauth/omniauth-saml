@@ -86,6 +86,14 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 * `:idp_sso_target_url` - The URL to which the authentication request should be sent.
   This would be on the identity provider. **Required**.
 
+* `:idp_slo_target_url` - The URL to which the single logout request and response should
+  be sent. This would be on the identity provider. Optional.
+
+* `:slo_default_relay_state` - The value to use as default `RelayState` for single log outs. The
+  value can be a string, or a `Proc` (or other object responding to `call`). The `request`
+  instance will be passed to this callable if it has an arity of 1. If the value is a string,
+  the string will be returned, when the `RelayState` is called. Optional.
+
 * `:idp_sso_target_url_runtime_params` - A dynamic mapping of request params that exist
   during the request phase of OmniAuth that should to be sent to the IdP after a specific
   mapping. So for example, a param `original_request_param` with value `original_param_value`,
@@ -144,6 +152,35 @@ end
 ```
 
 Then follow Devise's general [OmniAuth tutorial](https://github.com/plataformatec/devise/wiki/OmniAuth:-Overview), replacing references to `facebook` with `saml`.
+
+## Single Logout
+
+Single Logout can be Service Provider initiated or Identity Provider initiated.
+When using Devise as an authentication solution, the SP initiated flow can be integrated
+in the `SessionsController#destroy` action.
+
+For this to work it is important to preserve the `saml_uid` value before Devise
+clears the session and redirect to the `/spslo` sub-path to initiate the single logout.
+
+Example `destroy` action in `sessions_controller.rb`:
+
+```ruby
+class SessionsController < Devise::SessionsController
+  # ...
+
+  def destroy
+    # Preserve the saml_uid in the session
+    saml_uid = session["saml_uid"]
+    super do
+      session["saml_uid"] = saml_uid
+      if SAML_SETTINGS.idp_slo_target_url
+        spslo_url = user_omniauth_authorize_url(:saml) + "/spslo"
+        redirect_to(spslo_url)
+      end
+    end
+  end
+end
+```
 
 ## Authors
 
