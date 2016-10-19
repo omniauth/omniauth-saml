@@ -1,3 +1,18 @@
+<a name="v1.7.0"></a>
+### v1.7.0 (2016-09-18)
+
+
+#### Features
+
+* Support for Single Logout	 ([cd3fc43](/../../commit/cd3fc43))
+* Add issuer information to the metadata endpoint, to allow IdPs to properly configure themselves.	 ([7bbbb67](/../../commit/7bbbb67))
+* Added the response object to the extra['response_object'], so we can use the raw response object if we want to.	 ([76ed3d6](/../../commit/76ed3d6))
+
+#### Chores
+
+* Update `ruby-saml` to 1.4.0 to address security fixes. ([638212](/../../commit/638212))
+
+
 <a name="v1.6.0"></a>
 ### v1.6.0 (2016-06-27)
 * Ensure that subclasses of `OmniAuth::Stategies::SAML` are registered with OmniAuth as strategies (https://github.com/omniauth/omniauth-saml/pull/95)
