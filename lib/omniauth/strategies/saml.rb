@@ -28,6 +28,7 @@ module OmniAuth
         last_name: ["last_name", "lastname", "lastName"]
       }
       option :slo_default_relay_state
+      option :uid_attribute
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -136,7 +137,17 @@ module OmniAuth
         end
       end
 
-      uid { @name_id }
+      uid do
+        if options.uid_attribute
+          ret = find_attribute_by([options.uid_attribute])
+          if ret.nil?
+            raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing '#{options.uid_attribute}' attribute")
+          end
+          ret
+        else
+          @name_id
+        end
+      end
 
       info do
         found_attributes = options.attribute_statements.map do |key, values|
