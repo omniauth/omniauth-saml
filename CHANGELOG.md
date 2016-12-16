@@ -1,6 +1,5 @@
 <a name="v1.7.0"></a>
-### v1.7.0 (2016-09-18)
-
+### v1.7.0 (2016-10-19)
 
 #### Features
 
@@ -11,7 +10,6 @@
 #### Chores
 
 * Update `ruby-saml` to 1.4.0 to address security fixes. ([638212](/../../commit/638212))
-
 
 <a name="v1.6.0"></a>
 ### v1.6.0 (2016-06-27)
