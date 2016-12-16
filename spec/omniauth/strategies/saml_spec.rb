@@ -207,6 +207,31 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
+    context "when using custom user id attribute" do
+      before :each do
+        saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
+        saml_options[:uid_attribute] = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+        post_xml :custom_attributes
+      end
+
+      it "should return user id attribute" do
+        expect(auth_hash[:uid]).to eq("user@example.com")
+      end
+    end
+
+    context "when using custom user id attribute, but it is missing" do
+      before :each do
+        saml_options[:uid_attribute] = "missing_attribute"
+        post_xml
+      end
+
+      it "should fail to authenticate" do
+        should fail_with(:invalid_ticket)
+        expect(last_request.env['omniauth.error']).to be_instance_of(OmniAuth::Strategies::SAML::ValidationError)
+        expect(last_request.env['omniauth.error'].message).to eq("SAML response missing 'missing_attribute' attribute")
+      end
+    end
+
     context "when response is a logout response" do
       before :each do
         saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
