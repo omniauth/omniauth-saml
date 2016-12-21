@@ -158,6 +158,12 @@ Then follow Devise's general [OmniAuth tutorial](https://github.com/plataformate
 ## Single Logout
 
 Single Logout can be Service Provider initiated or Identity Provider initiated.
+
+For SP initiated logout, the `idp_slo_target_url` option must be set to the logout url on the IdP,
+and users directed to `user_saml_omniauth_authorize_path + '/spslo'` after logging out locally. For
+IdP initiated logout, logout requests from the IdP should go to `/auth/saml/slo` (this can be
+advertised in metadata by setting the `single_logout_service_url` config option).
+
 When using Devise as an authentication solution, the SP initiated flow can be integrated
 in the `SessionsController#destroy` action.
 
@@ -175,10 +181,16 @@ class SessionsController < Devise::SessionsController
     saml_uid = session["saml_uid"]
     super do
       session["saml_uid"] = saml_uid
-      if SAML_SETTINGS.idp_slo_target_url
-        spslo_url = user_omniauth_authorize_url(:saml) + "/spslo"
-        redirect_to(spslo_url)
-      end
+    end
+  end
+
+  # ...
+
+  def after_sign_out_path_for(_)
+    if session['saml_uid'] && SAML_SETTINGS.idp_slo_target_url
+      user_saml_omniauth_authorize_path + "/spslo"
+    else
+      super
     end
   end
 end
