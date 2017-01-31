@@ -89,6 +89,10 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 * `:idp_slo_target_url` - The URL to which the single logout request and response should
   be sent. This would be on the identity provider. Optional.
 
+* `:idp_slo_session_destroy` - A proc that accepts up to two parameters (the rack environment, and the session),
+  and performs whatever tasks are necessary to log out the current user from your application.
+  See the example listed under "Single Logout." Defaults to calling `#clear` on the session. Optional.
+
 * `:slo_default_relay_state` - The value to use as default `RelayState` for single log outs. The
   value can be a string, or a `Proc` (or other object responding to `call`). The `request`
   instance will be passed to this callable if it has an arity of 1. If the value is a string,
@@ -181,6 +185,18 @@ class SessionsController < Devise::SessionsController
       end
     end
   end
+end
+```
+
+By default, omniauth-saml attempts to log the current user out of your application by clearing the session.
+This may not be enough for some authentication solutions (e.g. [Clearance](https://github.com/thoughtbot/clearance/)).
+Instead, you may set the `:idp_slo_session_destroy` option to a proc that performs the necessary logout tasks.
+
+Example `:idp_slo_session_destroy` setting for Clearance compatibility:
+
+```ruby
+Rails.application.config.middleware.use OmniAuth::Builder do
+  provider :saml, idp_slo_session_destroy: proc { |env, _session| env[:clearance].sign_out }, ...
 end
 ```
 

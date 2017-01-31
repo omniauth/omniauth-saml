@@ -29,6 +29,7 @@ module OmniAuth
       }
       option :slo_default_relay_state
       option :uid_attribute
+      option :idp_slo_session_destroy, proc { |_env, session| session.clear }
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -230,7 +231,7 @@ module OmniAuth
           logout_request.name_id == session["saml_uid"]
 
           # Actually log out this session
-          session.clear
+          options[:idp_slo_session_destroy].call @env, session
 
           # Generate a response to the IdP.
           logout_request_id = logout_request.id
