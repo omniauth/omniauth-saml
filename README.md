@@ -74,6 +74,8 @@ A `OneLogin::RubySaml::Response` object is added to the `env['omniauth.auth']` e
 
 The service provider metadata used to ease configuration of the SAML SP in the IdP can be retrieved from `http://example.com/auth/saml/metadata`. Send this URL to the administrator of the IdP.
 
+Note that when [integrating with Devise](#devise-integration), the URL path will be scoped according to the name of the Devise resource.  For example, if the app's user model calls `devise_for :users`, the metadata URL will be `http://example.com/users/auth/saml/metadata`.
+
 ## Options
 
 * `:assertion_consumer_service_url` - The URL at which the SAML assertion should be
