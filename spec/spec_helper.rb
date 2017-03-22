@@ -1,13 +1,11 @@
-if RUBY_VERSION >= '1.9'
-  require 'simplecov'
+require 'simplecov'
 
-  if ENV['TRAVIS']
-    require 'coveralls'
-    Coveralls.wear!
-  end
-
-  SimpleCov.start
+if ENV['TRAVIS']
+  require 'coveralls'
+  Coveralls.wear!
 end
+
+SimpleCov.start
 
 require 'omniauth-saml'
 require 'rack/test'
