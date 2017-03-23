@@ -186,6 +186,37 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       it { should fail_with(:invalid_ticket) }
     end
 
+    context "when run with soft option" do
+      before :each do
+        saml_options[:soft] = true
+      end
+
+      context "when the fingerprint is invalid" do
+        before :each do
+          saml_options[:idp_cert_fingerprint] = "00:00:00:00:00:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB"
+          post_xml
+        end
+
+        it { should_not fail_with(:invalid_ticket) }
+      end
+
+      context "when the digest is invalid" do
+        before :each do
+          post_xml :digest_mismatch
+        end
+
+        it { should_not fail_with(:invalid_ticket) }
+      end
+
+      context "when the signature is invalid" do
+        before :each do
+          post_xml :invalid_signature
+        end
+
+        it { should_not fail_with(:invalid_ticket) }
+      end
+    end
+
     context "when response has custom attributes" do
       before :each do
         saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
