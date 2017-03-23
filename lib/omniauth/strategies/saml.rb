@@ -159,7 +159,7 @@ module OmniAuth
         Hash[found_attributes]
       end
 
-      extra { { :raw_info => @attributes, :response_object =>  @response_object } }
+      extra { { :raw_info => @attributes, :session_index => @session_index, :response_object =>  @response_object } }
 
       def find_attribute_by(keys)
         keys.each do |key|
@@ -182,6 +182,7 @@ module OmniAuth
 
         response.is_valid?
         @name_id = response.name_id
+        @session_index = response.sessionindex
         @attributes = response.attributes
         @response_object = response
 
@@ -190,6 +191,7 @@ module OmniAuth
         end
 
         session["saml_uid"] = @name_id
+        session["saml_session_index"] = @session_index
         yield
       end
 
@@ -220,6 +222,7 @@ module OmniAuth
 
         session.delete("saml_uid")
         session.delete("saml_transaction_id")
+        session.delete("saml_session_index")
 
         redirect(slo_relay_state)
       end
@@ -252,6 +255,10 @@ module OmniAuth
 
         if settings.name_identifier_value.nil?
           settings.name_identifier_value = session["saml_uid"]
+        end
+
+        if settings.sessionindex.nil?
+          settings.sessionindex = session["saml_session_index"]
         end
 
         logout_request.create(settings, RelayState: slo_relay_state)
