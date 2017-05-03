@@ -143,6 +143,22 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
 
 * `:uid_attribute` - Attribute that uniquely identifies the user. If unset, the name identifier returned by the IdP is used.
 
+* `:settings_object` - An instance of `OneLogin::RubySaml::Settings` which is then used for configuring
+  the [Ruby SAML gem](https://github.com/onelogin/ruby-saml#the-initialization-phase).
+   
+  This is especially useful together with the [metadata base configuration](https://github.com/onelogin/ruby-saml#metadata-based-configuration)
+  where you can parse the metadata provided by the IdP:
+  
+  ```ruby
+  provider :saml,
+    :assertion_consumer_service_url     => "consumer_service_url",
+    :issuer                             => "rails-application",
+    :settings_object                    => OneLogin::RubySaml::IdpMetadataParser.new.parse_remote("idp_metadata_url"),
+    :idp_sso_target_url_runtime_params  => {:original_request_param => :mapped_idp_param}
+  ```
+  
+  All other options given will be merged into the `settings_object` provided.
+
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
 ## Devise Integration

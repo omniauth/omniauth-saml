@@ -35,57 +35,92 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   let(:strategy) { [OmniAuth::Strategies::SAML, saml_options] }
 
   describe 'GET /auth/saml' do
-    context 'without idp runtime params present' do
-      before do
-        get '/auth/saml'
-      end
+    shared_examples_for 'request phase with any configuration type' do
+      context 'without idp runtime params present' do
+        before do
+          get '/auth/saml'
+        end
 
-      it 'should get authentication page' do
-        expect(last_response).to be_redirect
-        expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signon\/29490/
-        expect(last_response.location).to match /\?SAMLRequest=/
-        expect(last_response.location).not_to match /mapped_param_key/
-        expect(last_response.location).not_to match /original_param_key/
-      end
-    end
-
-    context 'with idp runtime params' do
-      before do
-        get '/auth/saml', 'original_param_key' => 'original_param_value', 'mapped_param_key' => 'mapped_param_value'
-      end
-
-      it 'should get authentication page' do
-        expect(last_response).to be_redirect
-        expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signon\/29490/
-        expect(last_response.location).to match /\?SAMLRequest=/
-        expect(last_response.location).to match /\&mapped_param_key=original_param_value/
-        expect(last_response.location).not_to match /original_param_key/
-      end
-    end
-
-    context "when the assertion_consumer_service_url is the default" do
-      before :each do
-        saml_options[:compress_request] = false
-        saml_options.delete(:assertion_consumer_service_url)
-      end
-
-      it 'should send the current callback_url as the assertion_consumer_service_url' do
-        %w(foo.example.com bar.example.com).each do |host|
-          get "https://#{host}/auth/saml"
-
+        it 'should get authentication page' do
           expect(last_response).to be_redirect
-
-          location = URI.parse(last_response.location)
-          query = Rack::Utils.parse_query location.query
-          expect(query).to have_key('SAMLRequest')
-
-          request = REXML::Document.new(Base64.decode64(query['SAMLRequest']))
-          expect(request.root).not_to be_nil
-
-          acs = request.root.attributes.get_attribute('AssertionConsumerServiceURL')
-          expect(acs.to_s).to eq "https://#{host}/auth/saml/callback"
+          expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signon\/29490/
+          expect(last_response.location).to match /\?SAMLRequest=/
+          expect(last_response.location).not_to match /mapped_param_key/
+          expect(last_response.location).not_to match /original_param_key/
         end
       end
+
+      context 'with idp runtime params' do
+        before do
+          get '/auth/saml', 'original_param_key' => 'original_param_value', 'mapped_param_key' => 'mapped_param_value'
+        end
+
+        it 'should get authentication page' do
+          expect(last_response).to be_redirect
+          expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signon\/29490/
+          expect(last_response.location).to match /\?SAMLRequest=/
+          expect(last_response.location).to match /\&mapped_param_key=original_param_value/
+          expect(last_response.location).not_to match /original_param_key/
+        end
+      end
+
+      context 'when the assertion_consumer_service_url is the default' do
+        before :each do
+          saml_options[:compress_request] = false
+          saml_options.delete(:assertion_consumer_service_url)
+        end
+
+        it 'should send the current callback_url as the assertion_consumer_service_url' do
+          %w(foo.example.com bar.example.com).each do |host|
+            get "https://#{host}/auth/saml"
+
+            expect(last_response).to be_redirect
+
+            location = URI.parse(last_response.location)
+            query = Rack::Utils.parse_query location.query
+            expect(query).to have_key('SAMLRequest')
+
+            request = REXML::Document.new(Base64.decode64(query['SAMLRequest']))
+            expect(request.root).not_to be_nil
+
+            acs = request.root.attributes.get_attribute('AssertionConsumerServiceURL')
+            expect(acs.to_s).to eq "https://#{host}/auth/saml/callback"
+          end
+      end
+    end
+    end
+
+    context 'when :settings_object option is nil' do
+      it_behaves_like 'request phase with any configuration type'
+    end
+
+    context 'with :settings_object option' do
+      let(:saml_options) do
+        {
+          :settings_object                    => settings_object,
+          :single_logout_service_url          => "http://localhost:9080/auth/saml/slo",
+          :assertion_consumer_service_url     => "http://localhost:9080/auth/saml/callback",
+          :idp_sso_target_url_runtime_params  => {:original_param_key => :mapped_param_key},
+          :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+          :request_attributes                 => [
+            { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
+            { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
+            { :name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name' },
+            { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' }
+          ],
+          :attribute_service_name             => 'Required attributes'
+        }
+      end
+
+      let(:settings_object) do
+        OneLogin::RubySaml::Settings.new(
+          :idp_sso_target_url        => "https://idp.sso.example.com/signon/29490",
+          :idp_slo_target_url        => "https://idp.sso.example.com/signoff/29490",
+          :idp_cert_fingerprint      => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
+        )
+      end
+
+      it_behaves_like 'request phase with any configuration type'
     end
   end
 
