@@ -30,6 +30,7 @@ module OmniAuth
       option :slo_default_relay_state
       option :uid_attribute
       option :idp_slo_session_destroy, proc { |_env, session| session.clear }
+      option :settings_object, nil
 
       def request_phase
         options[:assertion_consumer_service_url] ||= callback_url
@@ -216,7 +217,17 @@ module OmniAuth
       end
 
       def with_settings
-        yield OneLogin::RubySaml::Settings.new(options)
+        if options[:settings_object]
+          settings = options.delete(:settings_object)
+
+          options.each do |key, value|
+            settings.public_send(:"#{key}=", value) if settings.respond_to?(:"#{key}=")
+          end
+        else
+          settings = OneLogin::RubySaml::Settings.new(options)
+        end
+
+        yield settings
       end
 
       def validate_fingerprint(settings)
