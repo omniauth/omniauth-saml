@@ -186,10 +186,6 @@ module OmniAuth
         @attributes = response.attributes
         @response_object = response
 
-        if @name_id.nil? || @name_id.empty?
-          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing 'name_id'")
-        end
-
         session["saml_uid"] = @name_id
         session["saml_session_index"] = @session_index
         yield
