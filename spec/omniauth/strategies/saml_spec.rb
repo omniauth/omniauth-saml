@@ -125,22 +125,35 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when fingerprint is empty and there's a fingerprint validator" do
       before :each do
         saml_options.delete(:idp_cert_fingerprint)
-        saml_options[:idp_cert_fingerprint_validator] = lambda { |fingerprint| "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB" }
-        post_xml
+        saml_options[:idp_cert_fingerprint_validator] = fingerprint_validator
       end
 
-      it "should set the uid to the nameID in the SAML response" do
-        expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
+      let(:fingerprint_validator) { lambda { |_| "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB" } }
+
+      context "when the fingerprint validator returns a truthy value" do
+        before { post_xml }
+
+        it "should set the uid to the nameID in the SAML response" do
+          expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
+        end
+
+        it "should set the raw info to all attributes" do
+          expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
+            'first_name'   => ['Rajiv'],
+            'last_name'    => ['Manglani'],
+            'email'        => ['user@example.com'],
+            'company_name' => ['Example Company'],
+            'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
+          )
+        end
       end
 
-      it "should set the raw info to all attributes" do
-        expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
-          'first_name'   => ['Rajiv'],
-          'last_name'    => ['Manglani'],
-          'email'        => ['user@example.com'],
-          'company_name' => ['Example Company'],
-          'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
-        )
+      context "when the fingerprint validator returns false" do
+        let(:fingerprint_validator) { lambda { |_| false } }
+
+        before { post_xml }
+
+        it { should fail_with(:invalid_ticket) }
       end
     end
 
@@ -184,6 +197,27 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it { should fail_with(:invalid_ticket) }
+    end
+
+    context "when the response is stale" do
+      before :each do
+        allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 20, 45, 00))
+      end
+
+      context "without :allowed_clock_drift option" do
+        before { post_xml :example_response }
+
+        it { should fail_with(:invalid_ticket) }
+      end
+
+      context "with :allowed_clock_drift option" do
+        before :each do
+          saml_options[:allowed_clock_drift] = 60
+          post_xml :example_response
+        end
+
+        it { should_not fail_with(:invalid_ticket) }
+      end
     end
 
     context "when response has custom attributes" do
@@ -248,18 +282,49 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context "when request is a logout request" do
+      subject { post "/auth/saml/slo", params, "rack.session" => { "saml_uid" => "username@example.com" } }
+
       before :each do
         saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
-        post "/auth/saml/slo", {
-          "SAMLRequest" => load_xml(:example_logout_request),
-          "RelayState" => "https://example.com/",
-        }, "rack.session" => {"saml_uid" => "username@example.com"}
       end
 
-      it "should redirect to logout response" do
-        expect(last_response).to be_redirect
-        expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
-        expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+      let(:params) do
+        {
+          "SAMLRequest" => load_xml(:example_logout_request),
+          "RelayState" => "https://example.com/",
+        }
+      end
+
+      context "when logout request is valid" do
+        before { subject }
+
+        it "should redirect to logout response" do
+          expect(last_response).to be_redirect
+          expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
+          expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+        end
+      end
+
+      context "when request is an invalid logout request" do
+        before :each do
+          allow_any_instance_of(OneLogin::RubySaml::SloLogoutrequest).to receive(:is_valid?).and_return(false)
+        end
+
+        # TODO: Maybe this should not raise an exception, but return some 4xx error instead?
+        it "should raise an exception" do
+          expect { subject }.
+            to raise_error(OmniAuth::Strategies::SAML::ValidationError, 'SAML failed to process LogoutRequest')
+        end
+      end
+
+      context "when request is a logout request but the request param is missing" do
+        let(:params) { {} }
+
+        # TODO: Maybe this should not raise an exception, but return a 422 error instead?
+        it 'should raise an exception' do
+          expect { subject }.
+            to raise_error(OmniAuth::Strategies::SAML::ValidationError, 'SAML logout response/request missing')
+        end
       end
     end
 
@@ -318,6 +383,18 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       expect(last_response.body).to match /entityID/
       expect(last_response.body).to match /http:\/\/example.com\/SAML/
     end
+  end
+
+  context 'when hitting an unknown route in our sub path' do
+    before { get '/auth/saml/unknown' }
+
+    specify { expect(last_response.status).to eql 404 }
+  end
+
+  context 'when hitting a completely unknown route' do
+    before { get '/unknown' }
+
+    specify { expect(last_response.status).to eql 404 }
   end
 
   describe 'subclass behavior' do
