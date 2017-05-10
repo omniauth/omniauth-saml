@@ -153,7 +153,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
         before { post_xml }
 
-        it { should fail_with(:invalid_ticket) }
+        it { is_expected.to fail_with(:invalid_ticket) }
       end
     end
 
@@ -162,7 +162,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         post '/auth/saml/callback'
       end
 
-      it { should fail_with(:invalid_ticket) }
+      it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when there is no name id in the XML" do
@@ -171,7 +171,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         post_xml :no_name_id
       end
 
-      it { should fail_with(:invalid_ticket) }
+      it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the fingerprint is invalid" do
@@ -180,7 +180,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         post_xml
       end
 
-      it { should fail_with(:invalid_ticket) }
+      it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the digest is invalid" do
@@ -188,7 +188,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         post_xml :digest_mismatch
       end
 
-      it { should fail_with(:invalid_ticket) }
+      it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the signature is invalid" do
@@ -196,7 +196,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         post_xml :invalid_signature
       end
 
-      it { should fail_with(:invalid_ticket) }
+      it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the response is stale" do
@@ -207,7 +207,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       context "without :allowed_clock_drift option" do
         before { post_xml :example_response }
 
-        it { should fail_with(:invalid_ticket) }
+        it { is_expected.to fail_with(:invalid_ticket) }
       end
 
       context "with :allowed_clock_drift option" do
@@ -216,7 +216,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           post_xml :example_response
         end
 
-        it { should_not fail_with(:invalid_ticket) }
+        it { is_expected.to_not fail_with(:invalid_ticket) }
       end
     end
 
