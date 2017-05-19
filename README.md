@@ -70,7 +70,7 @@ For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set 
 
 A `OneLogin::RubySaml::Response` object is added to the `env['omniauth.auth']` extra attribute, so we can use it in the controller via `env['omniauth.auth'].extra.response_object`
 
-## Metadata
+## SP Metadata
 
 The service provider metadata used to ease configuration of the SAML SP in the IdP can be retrieved from `http://example.com/auth/saml/metadata`. Send this URL to the administrator of the IdP.
 
@@ -144,6 +144,27 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
 * `:uid_attribute` - Attribute that uniquely identifies the user. If unset, the name identifier returned by the IdP is used.
 
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
+
+## IdP Metadata
+
+You can use the `OneLogin::RubySaml::IdpMetadataParser` to configure some options:
+
+```ruby
+require 'omniauth'
+idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
+idp_metadata = idp_metadata_parser.parse_remote_to_hash("http://idp.example.com/saml/metadata")
+
+# or, if you have the metadata in a String:
+# idp_metadata = idp_metadata_parser.parse_to_hash(idp_metadata_xml)
+
+use OmniAuth::Strategies::SAML,
+  idp_metadata.merge(
+    :assertion_consumer_service_url => "consumer_service_url",
+    :issuer                         => "issuer"
+  )
+```
+
+See the [Ruby SAML gem's README](https://github.com/onelogin/ruby-saml#metadata-based-configuration) for more details.
 
 ## Devise Integration
 
