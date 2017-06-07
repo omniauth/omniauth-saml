@@ -1,3 +1,14 @@
+<a name="v1.8.0"></a>
+### v1.8.0 (2017-06-07)
+
+
+#### Features
+
+* include SessionIndex in logout requests	 ([fb6ad86](/../../commit/fb6ad86))
+* Support for configurable IdP SLO session destruction	 ([586bf89](/../../commit/586bf89))
+* Add `uid_attribute` option to control the attribute used for the user id.	 ([eacc536](/../../commit/eacc536))
+
+
 <a name="v1.7.0"></a>
 ### v1.7.0 (2016-10-19)
 
