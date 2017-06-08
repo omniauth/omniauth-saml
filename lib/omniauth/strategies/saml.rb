@@ -32,8 +32,6 @@ module OmniAuth
       option :idp_slo_session_destroy, proc { |_env, session| session.clear }
 
       def request_phase
-        options[:assertion_consumer_service_url] ||= callback_url
-
         authn_request = OneLogin::RubySaml::Authrequest.new
 
         with_settings do |settings|
@@ -212,6 +210,7 @@ module OmniAuth
       end
 
       def with_settings
+        options[:assertion_consumer_service_url] ||= callback_url
         yield OneLogin::RubySaml::Settings.new(options)
       end
 
