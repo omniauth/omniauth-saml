@@ -157,6 +157,16 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
+    context "when the assertion_consumer_service_url is the default" do
+      before :each do
+        saml_options.delete(:assertion_consumer_service_url)
+        OmniAuth.config.full_host = 'http://localhost:9080'
+        post_xml
+      end
+
+      it { is_expected.not_to fail_with(:invalid_ticket) }
+    end
+
     context "when there is no SAMLResponse parameter" do
       before :each do
         post '/auth/saml/callback'
