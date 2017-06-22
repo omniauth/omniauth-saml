@@ -1,3 +1,12 @@
+<a name="v1.8.1"></a>
+### v1.8.1 (2017-06-22)
+
+
+#### Bug Fixes
+
+* default assertion_consumer_service_url not set during callback	 ([4a2a5ef](/../../commit/4a2a5ef))
+
+
 <a name="v1.8.0"></a>
 ### v1.8.0 (2017-06-07)
 
