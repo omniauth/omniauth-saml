@@ -87,6 +87,34 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         end
       end
     end
+
+    context 'when authn request signing is requested' do
+      subject { get '/auth/saml' }
+
+      let(:private_key) { OpenSSL::PKey::RSA.new 2048 }
+
+      before do
+        saml_options[:compress_request] = false
+
+        saml_options[:private_key] = private_key.to_pem
+        saml_options[:security] = {
+          authn_requests_signed: true,
+          signature_method: XMLSecurity::Document::RSA_SHA256
+        }
+      end
+
+      it 'should sign the request' do
+        is_expected.to be_redirect
+
+        location = URI.parse(last_response.location)
+        query = Rack::Utils.parse_query location.query
+        expect(query).to have_key('SAMLRequest')
+        expect(query).to have_key('Signature')
+        expect(query).to have_key('SigAlg')
+
+        expect(query['SigAlg']).to eq XMLSecurity::Document::RSA_SHA256
+      end
+    end
   end
 
   describe 'POST /auth/saml/callback' do
