@@ -1,5 +1,6 @@
 appraise 'rack-1' do
   gem 'rack', '~> 1.x'
+  gem 'rack-test', '~> 0.7.0'
   gem 'term-ansicolor', '1.3.2'
 end
 
