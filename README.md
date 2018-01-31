@@ -23,7 +23,7 @@ https://github.com/omniauth/omniauth-saml
 
 ## Versioning
 
-We tag and release gems according to the [Semantic Versioning](http://semver.org/) principle.
+We tag and release gems according to the [Semantic Versioning](http://semver.org/) principle. In addition to the guidelines of Semantic Versioning, we follow a further guideline that otherwise backwards-compatible dependency upgrades for security reasons should generally be cause for a MINOR version upgrade as opposed to a PATCH version upgrade. Backwards-incompatible dependency upgrades for security reasons should still result in a MAJOR version upgrade for this library.
 
 ## Usage
 
