@@ -1,3 +1,12 @@
+<a name="v1.9.0"></a>
+### v1.9.0 (2018-01-29)
+
+
+#### Bug Fixes
+
+* Update omniauth gem to 1.3.2 or later 1.3.x	 ([b6bb425](/../../commit/b6bb425))
+
+
 <a name="v1.8.1"></a>
 ### v1.8.1 (2017-06-22)
 
