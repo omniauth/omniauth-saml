@@ -435,6 +435,15 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     specify { expect(last_response.status).to eql 404 }
   end
 
+  context 'when hitting a route that contains a substring match for the strategy name' do
+    before { get '/auth/saml2/metadata' }
+
+    it 'should not set the strategy' do
+      expect(last_request.env['omniauth.strategy']).to be_nil
+      expect(last_response.status).to eql 404
+    end
+  end
+
   describe 'subclass behavior' do
     it 'registers subclasses in OmniAuth.strategies' do
       subclass = Class.new(described_class)
