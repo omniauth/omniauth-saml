@@ -1,3 +1,13 @@
+<a name="v1.10.0"></a>
+### v1.10.0 (2018-02-19)
+
+
+#### Bug Fixes
+
+* ambiguous path match in other phase	 ([1b465b9](/../../commit/1b465b9))
+* Update ruby-saml gem to 1.7 or later to fix CVE-2017-11430 ([6bc28ad](/../../commit/6bc28ad))
+
+
 <a name="v1.9.0"></a>
 ### v1.9.0 (2018-01-29)
 
