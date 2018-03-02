@@ -204,7 +204,7 @@ advertised in metadata by setting the `single_logout_service_url` config option)
 When using Devise as an authentication solution, the SP initiated flow can be integrated
 in the `SessionsController#destroy` action.
 
-For this to work it is important to preserve the `saml_uid` value before Devise
+For this to work it is important to preserve the `saml_uid` and `saml_session_index` value before Devise
 clears the session and redirect to the `/spslo` sub-path to initiate the single logout.
 
 Example `destroy` action in `sessions_controller.rb`:
@@ -214,17 +214,19 @@ class SessionsController < Devise::SessionsController
   # ...
 
   def destroy
-    # Preserve the saml_uid in the session
-    saml_uid = session["saml_uid"]
+    # Preserve the saml_uid and saml_session_index in the session
+    saml_uid = session['saml_uid']
+    saml_session_index = session['saml_session_index']
     super do
-      session["saml_uid"] = saml_uid
+      session['saml_uid'] = saml_uid
+      session['saml_session_index'] = saml_session_index
     end
   end
 
   # ...
 
   def after_sign_out_path_for(_)
-    if session['saml_uid'] && SAML_SETTINGS.idp_slo_target_url
+    if session['saml_uid'] && session['saml_session_index'] && SAML_SETTINGS.idp_slo_target_url
       user_saml_omniauth_authorize_path + "/spslo"
     else
       super
