@@ -10,7 +10,10 @@ module OmniAuth
         OmniAuth::Strategy.included(subclass)
       end
 
-      OTHER_REQUEST_OPTIONS = [:skip_conditions, :allowed_clock_drift, :matches_request_id, :skip_subject_confirmation].freeze
+      OTHER_REQUEST_OPTIONS = [
+        :skip_conditions, :allowed_clock_drift, :matches_request_id,
+        :skip_subject_confirmation, :skip_destination, :skip_recipient_check
+      ].freeze
 
       option :name_identifier_format, nil
       option :idp_sso_target_url_runtime_params, {}
