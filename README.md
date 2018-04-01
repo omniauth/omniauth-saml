@@ -38,7 +38,7 @@ use OmniAuth::Strategies::SAML,
   :idp_sso_target_url_runtime_params  => {:original_request_param => :mapped_idp_param},
   :idp_cert                           => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
   :idp_cert_multi                     => {
-                                           :signing => [-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", -----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", ...],
+                                           :signing => ["-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", ...],
                                            :encryption => []
                                          }
   :idp_cert_fingerprint               => "E7:91:B2:E1:...",
@@ -65,7 +65,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     :idp_sso_target_url_runtime_params  => {:original_request_param => :mapped_idp_param},
     :idp_cert                           => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
     :idp_cert_multi                     => {
-                                             :signing => [-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", -----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", ...],
+                                             :signing => ["-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", ...],
                                              :encryption => []
                                            }
     :idp_cert_fingerprint               => "E7:91:B2:E1:...",
