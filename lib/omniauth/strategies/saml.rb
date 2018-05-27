@@ -15,10 +15,16 @@ module OmniAuth
         { name: 'last_name', name_format: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', friendly_name: 'Family name' }
       ]
       option :attribute_service_name, 'Required attributes'
+      
+      option :slo_default_relay_state
+      option :uid_attribute
+      
 
       def request_phase
         # delete params from session - causes CookieOverflow exception.
+
         session.delete('omniauth.params')
+        options.request_dynamic_options.(request, options)
         options[:assertion_consumer_service_url] ||= callback_url
         runtime_request_parameters = options.delete(:idp_sso_target_url_runtime_params)
 
@@ -37,6 +43,7 @@ module OmniAuth
         unless request.params['SAMLResponse']
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing")
         end
+        options.response_dynamic_options.(request, options)
 
         # Call a fingerprint validation method if there's one
         if options.idp_cert_fingerprint_validator
@@ -82,6 +89,7 @@ module OmniAuth
       end
 
       def other_phase
+
         if on_path?("#{request_path}/metadata")
           # omniauth does not set the strategy on the other_phase
           @env['omniauth.strategy'] ||= self
@@ -104,29 +112,23 @@ module OmniAuth
       uid { @name_id }
 
       # Override
-      def info
-        @_info  ||= {
-          first_name:   _attr_with_caution('First_Name'),
-          last_name:    _attr_with_caution('Last_Name'),
-          email:        _attr_with_caution('Email_Address'),
-          headline:     _attr_with_caution('Job_Role'),
-          access_level: _attr_with_caution('access_level'),
-          company:      _attr_with_caution('COMPANY_NAME')
-        }
+      info do
+        found_attributes = options.attribute_statements.map do |key, values|
+          attribute = find_attribute_by(values)
+          [key, attribute]
+        end
+        
+        Hash[found_attributes]
       end
 
-      # Override
-      def extra
-        {}
+      def find_attribute_by(keys)
+        keys.each do |key|
+          return @attributes[key] if @attributes[key]
+        end
+
+        nil
       end
 
-      private
-
-      def _attr_with_caution(attr_name)
-        attr_array = @attributes.attributes[attr_name]
-        return nil if attr_array.blank?
-        attr_array.first
-      end
     end
   end
 end
