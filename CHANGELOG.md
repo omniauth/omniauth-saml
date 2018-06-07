@@ -1,3 +1,13 @@
+<a name="v1.10.1"></a>
+### v1.10.1 (2018-06-07)
+
+
+#### Features
+
+* **saml-response**
+  * whitelist more response options	 ([575198d](/../../commit/575198d))
+
+
 <a name="v1.10.0"></a>
 ### v1.10.0 (2018-02-19)
 
