@@ -18,7 +18,10 @@ module OmniAuth
         { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
         { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
         { :name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name' },
-        { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' }
+        { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' },
+        { :name => 'token', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Access Token' },
+        { :name => 'expires', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Expiration Bool' },
+        { :name => 'expires_at', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Expiration Time' }
       ]
       option :attribute_service_name, 'Required attributes'
       option :attribute_statements, {
@@ -26,6 +29,11 @@ module OmniAuth
         email: ["email", "mail"],
         first_name: ["first_name", "firstname", "firstName"],
         last_name: ["last_name", "lastname", "lastName"]
+      }
+      option :credentials_statements, {
+          token: ["token"],
+          expires: ["expires"],
+          expires_at: ["expires_at"]
       }
       option :slo_default_relay_state
       option :uid_attribute
@@ -103,6 +111,15 @@ module OmniAuth
         found_attributes = options.attribute_statements.map do |key, values|
           attribute = find_attribute_by(values)
           [key, attribute]
+        end
+
+        Hash[found_attributes]
+      end
+
+      credentials do
+        found_attributes = options.credentials_statements.map do |key, values|
+            attribute = find_attribute_by(values)
+            [key, attribute]
         end
 
         Hash[found_attributes]
