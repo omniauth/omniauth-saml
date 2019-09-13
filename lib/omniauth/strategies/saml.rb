@@ -31,9 +31,9 @@ module OmniAuth
         last_name: ["last_name", "lastname", "lastName"]
       }
       option :credentials_statements, {
-          token: ["token"],
-          expires: ["expires"],
-          expires_at: ["expires_at"]
+        token: ["token"],
+        expires: ["expires"],
+        expires_at: ["expires_at"]
       }
       option :slo_default_relay_state
       option :uid_attribute
