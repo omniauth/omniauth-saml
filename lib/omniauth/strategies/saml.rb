@@ -31,9 +31,9 @@ module OmniAuth
         last_name: ["last_name", "lastname", "lastName"]
       }
       option :credentials_statements, {
-          token: ["token"],
-          expires: ["expires"],
-          expires_at: ["expires_at"]
+        token: ["token"],
+        expires: ["expires"],
+        expires_at: ["expires_at"]
       }
       option :slo_default_relay_state
       option :uid_attribute
@@ -117,12 +117,18 @@ module OmniAuth
       end
 
       credentials do
-        found_attributes = options.credentials_statements.map do |key, values|
-            attribute = find_attribute_by(values)
-            [key, attribute]
-        end
+        # found_credentials = options.credentials_statements.map do |key, values|
+        #     credential = find_credential_by(values)
+        #     [key, credential]
+        # end
+        # 
+        # Hash[found_credentials]
+         
+        token = @session_index
+        expires = true
+        expires_at = @response_object.session_expires_at
 
-        Hash[found_attributes]
+        Hash[['token', token], ['expires', expires], ['expires_at', expires_at]]
       end
 
       extra { { :raw_info => @attributes, :session_index => @session_index, :response_object =>  @response_object } }
@@ -134,6 +140,14 @@ module OmniAuth
 
         nil
       end
+
+      # def find_credential_by(keys)
+      #   keys.each do |key|
+      #     return @response_object.dig(key) if @response_object.dig(key)
+      #   end
+      # 
+      #   nil
+      # end
 
       private
 
