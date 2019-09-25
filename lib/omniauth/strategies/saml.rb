@@ -127,8 +127,9 @@ module OmniAuth
         token = @session_index
         expires = true
         expires_at = @response_object.session_expires_at
-
-        Hash[['token', token], ['expires', expires], ['expires_at', expires_at]]
+        # Hash[['token', token], ['expires', expires], ['expires_at', expires_at]]
+        # { :token => token, :expires => expires, :expires_at => expires_at }
+        { token: token, expires: expires, expires_at: expires_at }
       end
 
       extra { { :raw_info => @attributes, :session_index => @session_index, :response_object =>  @response_object } }
