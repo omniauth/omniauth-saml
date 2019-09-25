@@ -19,9 +19,6 @@ module OmniAuth
         { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
         { :name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name' },
         { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' },
-        { :name => 'token', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Access Token' },
-        { :name => 'expires', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Expiration Bool' },
-        { :name => 'expires_at', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Expiration Time' }
       ]
       option :attribute_service_name, 'Required attributes'
       option :attribute_statements, {
@@ -29,11 +26,6 @@ module OmniAuth
         email: ["email", "mail"],
         first_name: ["first_name", "firstname", "firstName"],
         last_name: ["last_name", "lastname", "lastName"]
-      }
-      option :credentials_statements, {
-        token: ["token"],
-        expires: ["expires"],
-        expires_at: ["expires_at"]
       }
       option :slo_default_relay_state
       option :uid_attribute
@@ -117,18 +109,11 @@ module OmniAuth
       end
 
       credentials do
-        # found_credentials = options.credentials_statements.map do |key, values|
-        #     credential = find_credential_by(values)
-        #     [key, credential]
-        # end
-        # 
-        # Hash[found_credentials]
-         
-        token = @session_index
-        expires = true
-        expires_at = @response_object.session_expires_at
-        # Hash[['token', token], ['expires', expires], ['expires_at', expires_at]]
-        # { :token => token, :expires => expires, :expires_at => expires_at }
+        expires_at = @response_object.session_expires_at.to_time.to_i
+        expires_at ||= @response_object.not_on_or_after.to_i
+        expires = true unless expires_at.nil? then false
+        token = @session_index if expires
+
         { token: token, expires: expires, expires_at: expires_at }
       end
 
@@ -141,14 +126,6 @@ module OmniAuth
 
         nil
       end
-
-      # def find_credential_by(keys)
-      #   keys.each do |key|
-      #     return @response_object.dig(key) if @response_object.dig(key)
-      #   end
-      # 
-      #   nil
-      # end
 
       private
 
