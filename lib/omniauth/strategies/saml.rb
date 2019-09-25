@@ -111,7 +111,7 @@ module OmniAuth
       credentials do
         expires_at = @response_object.session_expires_at.to_time.to_i
         expires_at ||= @response_object.not_on_or_after.to_i
-        expires = true unless expires_at.nil? then false
+        expires = true unless expires_at.nil? false
         token = @session_index if expires
 
         { token: token, expires: expires, expires_at: expires_at }
