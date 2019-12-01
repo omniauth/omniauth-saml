@@ -37,13 +37,14 @@ module OmniAuth
         authn_request = OneLogin::RubySaml::Authrequest.new
 
         options[:assertion_consumer_service_url] ||= callback_url
+        settings = OneLogin::RubySaml::Settings.new(options)
+
         if options[:sptype] != false
-          options.extensions[:sptype] = options[:sptype]
+          settings.extensions[:sptype] = options[:sptype]
         end
         if options[:auth_request_include_request_attributes] == true
-          options.extensions[:requested_attributes] = with_requested_attributes
+          settings.extensions[:requested_attributes] = with_requested_attributes
         end
-        settings = OneLogin::RubySaml::Settings.new(options)
 
         redirect(authn_request.create(settings, additional_params_for_authn_request))
       end
