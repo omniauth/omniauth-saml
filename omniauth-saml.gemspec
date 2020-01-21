@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = 'https://github.com/PracticallyGreen/omniauth-saml'
 
   gem.add_runtime_dependency 'omniauth', '~> 1.1'
-  gem.add_runtime_dependency 'ruby-saml', '~> 1.0.0'
+  gem.add_runtime_dependency 'ruby-saml', '~> 1.4.3'
 
   gem.add_development_dependency 'rspec', '~> 2.8'
   gem.add_development_dependency 'simplecov', '~> 0.6'
