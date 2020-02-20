@@ -41,7 +41,7 @@ module OmniAuth
 
       def callback_phase
         raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing") unless request.params["SAMLResponse"]
-        options.request_dynamic_options.(request, options)
+        options.response_dynamic_options.(request, options)
         with_settings do |settings|
           # Call a fingerprint validation method if there's one
           validate_fingerprint(settings) if options.idp_cert_fingerprint_validator
