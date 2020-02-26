@@ -9,16 +9,20 @@ Gem::Specification.new do |gem|
 
   gem.authors       = ['Raecoo Cao', 'Ryan Wilcox', 'Rajiv Aaron Manglani', 'Steven Anderson', 'Nikos Dimitrakopoulos', 'Rudolf Vriend', 'Bruno Pedro']
   gem.email         = 'rajiv@alum.mit.edu'
-  gem.homepage      = 'https://github.com/PracticallyGreen/omniauth-saml'
+  gem.homepage      = 'https://github.com/omniauth/omniauth-saml'
 
-  gem.add_runtime_dependency 'omniauth', '~> 1.1'
-  gem.add_runtime_dependency 'ruby-saml', '~> 1.0.0'
+  gem.required_ruby_version = '>= 2.1'
 
-  gem.add_development_dependency 'rspec', '~> 2.8'
-  gem.add_development_dependency 'simplecov', '~> 0.6'
-  gem.add_development_dependency 'rack-test', '~> 0.6'
+  gem.add_runtime_dependency 'omniauth', '~> 1.3', '>= 1.3.2'
+  gem.add_runtime_dependency 'ruby-saml', '~> 1.8'
 
-  gem.files         = ['README.md', 'CHANGELOG.md'] + Dir['lib/**/*.rb']
+  gem.add_development_dependency 'rake', '>= 10', '< 12'
+  gem.add_development_dependency 'rspec', '~>3.4'
+  gem.add_development_dependency 'simplecov', '~> 0.11'
+  gem.add_development_dependency 'rack-test', '~> 0.6', '>= 0.6.3'
+  gem.add_development_dependency 'conventional-changelog', '~> 1.2'
+
+  gem.files         = ['README.md', 'CHANGELOG.md', 'LICENSE.md'] + Dir['lib/**/*.rb']
   gem.test_files    = Dir['spec/**/*.rb']
   gem.require_paths = ["lib"]
 end

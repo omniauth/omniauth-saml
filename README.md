@@ -1,13 +1,29 @@
 # OmniAuth SAML
 
-A generic SAML strategy for OmniAuth.
+[![Gem Version](http://img.shields.io/gem/v/omniauth-saml.svg)][gem]
+[![Build Status](http://img.shields.io/travis/omniauth/omniauth-saml.svg)][travis]
+[![Dependency Status](http://img.shields.io/gemnasium/omniauth/omniauth-saml.svg)][gemnasium]
+[![Code Climate](http://img.shields.io/codeclimate/github/omniauth/omniauth-saml.svg)][codeclimate]
+[![Coverage Status](http://img.shields.io/coveralls/omniauth/omniauth-saml.svg)][coveralls]
 
-https://github.com/PracticallyGreen/omniauth-saml
+[gem]: https://rubygems.org/gems/omniauth-saml
+[travis]: http://travis-ci.org/omniauth/omniauth-saml
+[gemnasium]: https://gemnasium.com/omniauth/omniauth-saml
+[codeclimate]: https://codeclimate.com/github/omniauth/omniauth-saml
+[coveralls]: https://coveralls.io/r/omniauth/omniauth-saml
+
+A generic SAML strategy for OmniAuth available under the [MIT License](LICENSE.md)
+
+https://github.com/omniauth/omniauth-saml
 
 ## Requirements
 
-* [OmniAuth](http://www.omniauth.org/) 1.2+
-* Ruby 1.9.x or Ruby 2.1.x
+* [OmniAuth](http://www.omniauth.org/) 1.3+
+* Ruby 2.1.x+
+
+## Versioning
+
+We tag and release gems according to the [Semantic Versioning](http://semver.org/) principle. In addition to the guidelines of Semantic Versioning, we follow a further guideline that otherwise backwards-compatible dependency upgrades for security reasons should generally be cause for a MINOR version upgrade as opposed to a PATCH version upgrade. Backwards-incompatible dependency upgrades for security reasons should still result in a MAJOR version upgrade for this library.
 
 ## Usage
 
@@ -52,9 +68,13 @@ end
 
 For IdP-initiated SSO, users should directly access the IdP SSO target URL. Set the `href` of your application's login link to the value of `idp_sso_target_url`. For SP-initiated SSO, link to `/auth/saml`.
 
-## Metadata
+A `OneLogin::RubySaml::Response` object is added to the `env['omniauth.auth']` extra attribute, so we can use it in the controller via `env['omniauth.auth'].extra.response_object`
+
+## SP Metadata
 
 The service provider metadata used to ease configuration of the SAML SP in the IdP can be retrieved from `http://example.com/auth/saml/metadata`. Send this URL to the administrator of the IdP.
+
+Note that when [integrating with Devise](#devise-integration), the URL path will be scoped according to the name of the Devise resource.  For example, if the app's user model calls `devise_for :users`, the metadata URL will be `http://example.com/users/auth/saml/metadata`.
 
 ## Options
 
@@ -67,6 +87,18 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 
 * `:idp_sso_target_url` - The URL to which the authentication request should be sent.
   This would be on the identity provider. **Required**.
+
+* `:idp_slo_target_url` - The URL to which the single logout request and response should
+  be sent. This would be on the identity provider. Optional.
+
+* `:idp_slo_session_destroy` - A proc that accepts up to two parameters (the rack environment, and the session),
+  and performs whatever tasks are necessary to log out the current user from your application.
+  See the example listed under "Single Logout." Defaults to calling `#clear` on the session. Optional.
+
+* `:slo_default_relay_state` - The value to use as default `RelayState` for single log outs. The
+  value can be a string, or a `Proc` (or other object responding to `call`). The `request`
+  instance will be passed to this callable if it has an arity of 1. If the value is a string,
+  the string will be returned, when the `RelayState` is called. Optional.
 
 * `:idp_sso_target_url_runtime_params` - A dynamic mapping of request params that exist
   during the request phase of OmniAuth that should to be sent to the IdP after a specific
@@ -100,7 +132,39 @@ The service provider metadata used to ease configuration of the SAML SP in the I
 
 * `:attribute_service_name` - Name for the attribute service. Defaults to `Required attributes`.
 
+* `:attribute_statements` - Used to map Attribute Names in a SAMLResponse to
+  entries in the OmniAuth [info hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema#schema-10-and-later).
+  For example, if your SAMLResponse contains an Attribute called 'EmailAddress',
+  specify `{:email => ['EmailAddress']}` to map the Attribute to the
+  corresponding key in the info hash.  URI-named Attributes are also supported, e.g.
+  `{:email => ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']}`.
+  *Note*: All attributes can also be found in an array under `auth_hash[:extra][:raw_info]`,
+  so this setting should only be used to map attributes that are part of the OmniAuth info hash schema.
+
+* `:uid_attribute` - Attribute that uniquely identifies the user. If unset, the name identifier returned by the IdP is used.
+
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
+
+## IdP Metadata
+
+You can use the `OneLogin::RubySaml::IdpMetadataParser` to configure some options:
+
+```ruby
+require 'omniauth'
+idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
+idp_metadata = idp_metadata_parser.parse_remote_to_hash("http://idp.example.com/saml/metadata")
+
+# or, if you have the metadata in a String:
+# idp_metadata = idp_metadata_parser.parse_to_hash(idp_metadata_xml)
+
+use OmniAuth::Strategies::SAML,
+  idp_metadata.merge(
+    :assertion_consumer_service_url => "consumer_service_url",
+    :issuer                         => "issuer"
+  )
+```
+
+See the [Ruby SAML gem's README](https://github.com/onelogin/ruby-saml#metadata-based-configuration) for more details.
 
 ## Devise Integration
 
@@ -118,29 +182,59 @@ end
 
 Then follow Devise's general [OmniAuth tutorial](https://github.com/plataformatec/devise/wiki/OmniAuth:-Overview), replacing references to `facebook` with `saml`.
 
+## Single Logout
+
+Single Logout can be Service Provider initiated or Identity Provider initiated.
+
+For SP initiated logout, the `idp_slo_target_url` option must be set to the logout url on the IdP,
+and users directed to `user_saml_omniauth_authorize_path + '/spslo'` after logging out locally. For
+IdP initiated logout, logout requests from the IdP should go to `/auth/saml/slo` (this can be
+advertised in metadata by setting the `single_logout_service_url` config option).
+
+When using Devise as an authentication solution, the SP initiated flow can be integrated
+in the `SessionsController#destroy` action.
+
+For this to work it is important to preserve the `saml_uid` value before Devise
+clears the session and redirect to the `/spslo` sub-path to initiate the single logout.
+
+Example `destroy` action in `sessions_controller.rb`:
+
+```ruby
+class SessionsController < Devise::SessionsController
+  # ...
+
+  def destroy
+    # Preserve the saml_uid in the session
+    saml_uid = session["saml_uid"]
+    super do
+      session["saml_uid"] = saml_uid
+    end
+  end
+
+  # ...
+
+  def after_sign_out_path_for(_)
+    if session['saml_uid'] && SAML_SETTINGS.idp_slo_target_url
+      user_saml_omniauth_authorize_path + "/spslo"
+    else
+      super
+    end
+  end
+end
+```
+
+By default, omniauth-saml attempts to log the current user out of your application by clearing the session.
+This may not be enough for some authentication solutions (e.g. [Clearance](https://github.com/thoughtbot/clearance/)).
+Instead, you may set the `:idp_slo_session_destroy` option to a proc that performs the necessary logout tasks.
+
+Example `:idp_slo_session_destroy` setting for Clearance compatibility:
+
+```ruby
+Rails.application.config.middleware.use OmniAuth::Builder do
+  provider :saml, idp_slo_session_destroy: proc { |env, _session| env[:clearance].sign_out }, ...
+end
+```
+
 ## Authors
 
 Authored by [Rajiv Aaron Manglani](http://www.rajivmanglani.com/), Raecoo Cao, Todd W Saxton, Ryan Wilcox, Steven Anderson, Nikos Dimitrakopoulos, Rudolf Vriend and [Bruno Pedro](http://brunopedro.com/).
-
-## License
-
-Copyright (c) 2011-2014 [Practically Green, Inc.](http://www.practicallygreen.com/).
-All rights reserved. Released under the MIT license.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.

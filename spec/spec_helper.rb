@@ -1,4 +1,10 @@
 require 'simplecov'
+
+if ENV['TRAVIS']
+  require 'coveralls'
+  Coveralls.wear!
+end
+
 SimpleCov.start
 
 require 'omniauth-saml'
@@ -6,6 +12,10 @@ require 'rack/test'
 require 'rexml/document'
 require 'rexml/xpath'
 require 'base64'
+
+TEST_LOGGER = Logger.new(StringIO.new)
+OneLogin::RubySaml::Logging.logger = TEST_LOGGER
+OmniAuth.config.logger = TEST_LOGGER
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
