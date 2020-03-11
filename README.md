@@ -37,6 +37,10 @@ use OmniAuth::Strategies::SAML,
   :idp_sso_target_url                 => "idp_sso_target_url",
   :idp_sso_target_url_runtime_params  => {:original_request_param => :mapped_idp_param},
   :idp_cert                           => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
+  :idp_cert_multi                     => {
+                                           :signing => ["-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", ...],
+                                           :encryption => []
+                                         }
   :idp_cert_fingerprint               => "E7:91:B2:E1:...",
   :idp_cert_fingerprint_validator     => lambda { |fingerprint| fingerprint },
   :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
@@ -60,6 +64,10 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     :idp_sso_target_url                 => "idp_sso_target_url",
     :idp_sso_target_url_runtime_params  => {:original_request_param => :mapped_idp_param},
     :idp_cert                           => "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----",
+    :idp_cert_multi                     => {
+                                             :signing => ["-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", "-----BEGIN CERTIFICATE-----\n...-----END CERTIFICATE-----", ...],
+                                             :encryption => []
+                                           }
     :idp_cert_fingerprint               => "E7:91:B2:E1:...",
     :idp_cert_fingerprint_validator     => lambda { |fingerprint| fingerprint },
     :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
@@ -107,16 +115,20 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
   `original_param_value`. Optional.
 
 * `:idp_cert` - The identity provider's certificate in PEM format. Takes precedence
-  over the fingerprint option below. This option or `:idp_cert_fingerprint` or `:idp_cert_fingerprint_validator` must
+  over the fingerprint option below. This option or `:idp_cert_multi` or `:idp_cert_fingerprint` or `:idp_cert_fingerprint_validator` must
   be present.
+  
+* `:idp_cert_multi` - Multiple identity provider certificates in PEM format. Takes precedence
+over the fingerprint option below. This option `:idp_cert` or `:idp_cert_fingerprint` or `:idp_cert_fingerprint_validator` must
+be present.
 
 * `:idp_cert_fingerprint` - The SHA1 fingerprint of the certificate, e.g.
   "90:CC:16:F0:8D:...". This is provided from the identity provider when setting up
-  the relationship. This option or `:idp_cert` or `:idp_cert_fingerprint_validator` MUST be present.
+  the relationship. This option or `:idp_cert` or `:idp_cert_multi` or `:idp_cert_fingerprint_validator` MUST be present.
 
 * `:idp_cert_fingerprint_validator` - A lambda that MUST accept one parameter
   (the fingerprint), verify if it is valid and return it if successful. This option
-  or `:idp_cert` or `:idp_cert_fingerprint` MUST be present.
+  or `:idp_cert` or `:idp_cert_multi` or `:idp_cert_fingerprint` MUST be present.
 
 * `:name_identifier_format` - Used during SP-initiated SSO. Describes the format of
   the username required by this application. If you need the email address, use
