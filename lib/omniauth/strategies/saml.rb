@@ -129,7 +129,7 @@ module OmniAuth
       end
 
       def handle_response(raw_response, opts, settings)
-        response = OneLogin::RubySaml::Response.new(raw_response, opts.merge(settings: settings))
+        response = OneLogin::RubySaml::Response.new(raw_response, opts.merge(settings: settings, idp_cert: options[:idp_cert]))
         response.attributes["fingerprint"] = settings.idp_cert_fingerprint
         response.soft = false
 
