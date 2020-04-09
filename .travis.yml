@@ -23,16 +23,9 @@ rvm:
   - jruby-head
   - ruby-head
 
-gemfile:
-  - gemfiles/rack_1.gemfile
-  - gemfiles/rack_2.gemfile
-
 matrix:
   allow_failures:
     - rvm: ruby-head
 
   fast_finish: true
 
-  exclude:
-    - rvm: 2.1.10
-      gemfile: gemfiles/rack_2.gemfile
