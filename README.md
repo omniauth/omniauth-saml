@@ -8,7 +8,6 @@
 
 [gem]: https://rubygems.org/gems/omniauth-saml
 [travis]: http://travis-ci.org/omniauth/omniauth-saml
-[gemnasium]: https://gemnasium.com/omniauth/omniauth-saml
 [codeclimate]: https://codeclimate.com/github/omniauth/omniauth-saml
 [coveralls]: https://coveralls.io/r/omniauth/omniauth-saml
 
