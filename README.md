@@ -2,12 +2,12 @@
 
 [![Gem Version](http://img.shields.io/gem/v/omniauth-saml.svg)][gem]
 [![Build Status](http://img.shields.io/travis/omniauth/omniauth-saml.svg)][travis]
-[![Code Climate](http://img.shields.io/codeclimate/github/omniauth/omniauth-saml.svg)][codeclimate]
+[![Maintainability](https://api.codeclimate.com/v1/badges/749e17b553ea944522c1/maintainability)][codeclimate]
 [![Coverage Status](http://img.shields.io/coveralls/omniauth/omniauth-saml.svg)][coveralls]
 
 [gem]: https://rubygems.org/gems/omniauth-saml
 [travis]: http://travis-ci.org/omniauth/omniauth-saml
-[codeclimate]: https://codeclimate.com/github/omniauth/omniauth-saml
+[codeclimate]: https://codeclimate.com/github/omniauth/omniauth-saml/maintainability
 [coveralls]: https://coveralls.io/r/omniauth/omniauth-saml
 
 A generic SAML strategy for OmniAuth available under the [MIT License](LICENSE.md)
