@@ -11,16 +11,17 @@ Gem::Specification.new do |gem|
   gem.email         = 'rajiv@alum.mit.edu'
   gem.homepage      = 'https://github.com/omniauth/omniauth-saml'
 
-  gem.required_ruby_version = '>= 2.1'
+  gem.required_ruby_version = '>= 2.4'
 
   gem.add_runtime_dependency 'omniauth', '~> 1.3', '>= 1.3.2'
   gem.add_runtime_dependency 'ruby-saml', '~> 1.9'
 
-  gem.add_development_dependency 'rake', '>= 10', '< 12'
+  gem.add_development_dependency 'rake', '>= 12.3.3'
   gem.add_development_dependency 'rspec', '~>3.4'
   gem.add_development_dependency 'simplecov', '~> 0.11'
   gem.add_development_dependency 'rack-test', '~> 0.6', '>= 0.6.3'
   gem.add_development_dependency 'conventional-changelog', '~> 1.2'
+  gem.add_development_dependency 'coveralls', '>= 0.8.23'
 
   gem.files         = ['README.md', 'CHANGELOG.md', 'LICENSE.md'] + Dir['lib/**/*.rb']
   gem.test_files    = Dir['spec/**/*.rb']
