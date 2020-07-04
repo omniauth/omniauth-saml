@@ -1,3 +1,13 @@
+<a name="v1.10.2"></a>
+### v1.10.2 (2018-05-23)
+
+
+#### Features
+
+* **saml**
+  * inherits allows response options from ruby-saml instead of whitelist	 ([a0eedd6](/../../commit/a0eedd6))
+
+
 <a name="v1.10.1"></a>
 ### v1.10.1 (2018-06-07)
 
