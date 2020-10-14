@@ -177,7 +177,7 @@ module OmniAuth
       end
 
       def handle_logout_request(raw_request, settings)
-        logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request)
+        logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request, {}.merge(settings: settings).merge(get_params: @request.params))
 
         if logout_request.is_valid? &&
           logout_request.name_id == session["saml_uid"]
