@@ -1,3 +1,12 @@
+<a name="v1.10.3"></a>
+### v1.10.3 (2020-10-06)
+
+
+#### Bug Fixes
+
+* add options to logout_request initialization	 ([c271a37](/../../commit/c271a37))
+
+
 <a name="v1.10.2"></a>
 ### v1.10.2 (2018-05-23)
 
