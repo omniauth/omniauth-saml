@@ -6,7 +6,7 @@ RSpec::Matchers.define :fail_with do |message|
   end
 end
 
-def post_xml(xml=:example_response, opts = {})
+def post_xml(xml = :example_response, opts = {})
   post "/auth/saml/callback", opts.merge({'SAMLResponse' => load_xml(xml)})
 end
 
@@ -34,10 +34,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
   let(:strategy) { [OmniAuth::Strategies::SAML, saml_options] }
 
-  describe 'GET /auth/saml' do
+  describe 'POST /auth/saml' do
     context 'without idp runtime params present' do
       before do
-        get '/auth/saml'
+        post '/auth/saml'
       end
 
       it 'should get authentication page' do
@@ -51,7 +51,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context 'with idp runtime params' do
       before do
-        get '/auth/saml', 'original_param_key' => 'original_param_value', 'mapped_param_key' => 'mapped_param_value'
+        post '/auth/saml', 'original_param_key' => 'original_param_value', 'mapped_param_key' => 'mapped_param_value'
       end
 
       it 'should get authentication page' do
@@ -71,7 +71,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       it 'should send the current callback_url as the assertion_consumer_service_url' do
         %w(foo.example.com bar.example.com).each do |host|
-          get "https://#{host}/auth/saml"
+          post "https://#{host}/auth/saml"
 
           expect(last_response).to be_redirect
 
@@ -89,7 +89,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context 'when authn request signing is requested' do
-      subject { get '/auth/saml' }
+      subject { post '/auth/saml' }
 
       let(:private_key) { OpenSSL::PKey::RSA.new 2048 }
 
@@ -402,10 +402,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
   end
 
-  describe 'GET /auth/saml/metadata' do
+  describe 'POST /auth/saml/metadata' do
     before do
       saml_options[:issuer] = 'http://example.com/SAML'
-      get '/auth/saml/metadata'
+      post '/auth/saml/metadata'
     end
 
     it 'should get SP metadata page' do
@@ -424,19 +424,19 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
 
   context 'when hitting an unknown route in our sub path' do
-    before { get '/auth/saml/unknown' }
+    before { post '/auth/saml/unknown' }
 
     specify { expect(last_response.status).to eql 404 }
   end
 
   context 'when hitting a completely unknown route' do
-    before { get '/unknown' }
+    before { post '/unknown' }
 
     specify { expect(last_response.status).to eql 404 }
   end
 
   context 'when hitting a route that contains a substring match for the strategy name' do
-    before { get '/auth/saml2/metadata' }
+    before { post '/auth/saml2/metadata' }
 
     it 'should not set the strategy' do
       expect(last_request.env['omniauth.strategy']).to be_nil
