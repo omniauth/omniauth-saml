@@ -16,6 +16,7 @@ require 'base64'
 TEST_LOGGER = Logger.new(StringIO.new)
 OneLogin::RubySaml::Logging.logger = TEST_LOGGER
 OmniAuth.config.logger = TEST_LOGGER
+OmniAuth.config.request_validation_phase = proc {}
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods
