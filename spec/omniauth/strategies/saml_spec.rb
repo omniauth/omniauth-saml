@@ -319,8 +319,9 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
+
     context "when request is a logout request" do
-      subject { post "/auth/saml/slo", params, "rack.session" => { "saml_uid" => "username@example.com" } }
+      subject { post "/auth/saml/slo", params, "rack.session" => rack_session }
 
       before :each do
         saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
@@ -330,6 +331,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         {
           "SAMLRequest" => load_xml(:example_logout_request),
           "RelayState" => "https://example.com/",
+        }
+      end
+
+      let(:rack_session) do
+        {
+          "saml_uid" => "username@example.com"
         }
       end
 
@@ -362,6 +369,33 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         it 'should raise an exception' do
           expect { subject }.
             to raise_error(OmniAuth::Strategies::SAML::ValidationError, 'SAML logout response/request missing')
+        end
+      end
+
+      context "when no session is present (back-channel IdP initiated slo)" do
+        let(:rack_session) do
+          {}
+        end
+
+        context "when logout request is valid" do
+          before { subject }
+
+          it "should redirect to logout response" do
+            expect(last_response).to be_redirect
+            expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
+            expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+          end
+        end
+      end
+
+      context "when the saml_uid doesnt match the name_id" do
+        let(:rack_session) do
+          {"saml_uid" => "different@example.com"}
+        end
+
+        it 'should raise an exception' do
+          expect { subject }.
+            to raise_error(OmniAuth::Strategies::SAML::ValidationError, 'SAML failed to process LogoutRequest')
         end
       end
     end

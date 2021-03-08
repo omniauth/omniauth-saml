@@ -161,11 +161,15 @@ module OmniAuth
         end
       end
 
-      def handle_logout_response(raw_response, settings)
+      def handle_logout_response(raw_response, settings, request)
         # After sending an SP initiated LogoutRequest to the IdP, we need to accept
         # the LogoutResponse, verify it, then actually delete our session.
 
-        logout_response = OneLogin::RubySaml::Logoutresponse.new(raw_response, settings, :matches_request_id => session["saml_transaction_id"])
+        response_options = build_logout_options(request).merge(
+          matches_request_id: session["saml_transaction_id"]
+        )
+
+        logout_response = OneLogin::RubySaml::Logoutresponse.new(raw_response, settings, response_options)
         logout_response.soft = false
         logout_response.validate
 
@@ -176,14 +180,17 @@ module OmniAuth
         redirect(slo_relay_state)
       end
 
-      def handle_logout_request(raw_request, settings)
-        logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request, {}.merge(settings: settings).merge(get_params: @request.params))
+      def handle_logout_request(raw_request, settings, request)
+        request_options = build_logout_options(request).merge(
+          settings: settings
+        )
 
-        if logout_request.is_valid? &&
-          logout_request.name_id == session["saml_uid"]
+        logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request, request_options)
+
+        if logout_request.is_valid? && (logout_request.name_id == session["saml_uid"] || session["saml_uid"].nil?)
 
           # Actually log out this session
-          options[:idp_slo_session_destroy].call @env, session
+          options[:idp_slo_session_destroy].call @env, session, logout_request.name_id
 
           # Generate a response to the IdP.
           logout_request_id = logout_request.id
@@ -192,6 +199,15 @@ module OmniAuth
         else
           raise OmniAuth::Strategies::SAML::ValidationError.new("SAML failed to process LogoutRequest")
         end
+      end
+
+      def build_logout_options(request)
+        {
+          get_params: request.GET.select { |k, _| k == "Signature" },
+          raw_get_params: Rack::Utils.parse_query(request.query_string, &:itself).select do |k, _|
+            %w(SAMLRequest SigAlg RelayState).include?(k)
+          end
+        }
       end
 
       # Create a SP initiated SLO: https://github.com/onelogin/ruby-saml#single-log-out
@@ -254,9 +270,9 @@ module OmniAuth
       def other_phase_for_slo
         with_settings do |settings|
           if request.params["SAMLResponse"]
-            handle_logout_response(request.params["SAMLResponse"], settings)
+            handle_logout_response(request.params["SAMLResponse"], settings, request)
           elsif request.params["SAMLRequest"]
-            handle_logout_request(request.params["SAMLRequest"], settings)
+            handle_logout_request(request.params["SAMLRequest"], settings, request)
           else
             raise OmniAuth::Strategies::SAML::ValidationError.new("SAML logout response/request missing")
           end
