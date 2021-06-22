@@ -18,7 +18,7 @@ module OmniAuth
         { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
         { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
         { :name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name' },
-        { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' }
+        { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' },
       ]
       option :attribute_service_name, 'Required attributes'
       option :attribute_statements, {
@@ -106,6 +106,15 @@ module OmniAuth
         end
 
         Hash[found_attributes]
+      end
+
+      credentials do
+        expires_at = @response_object.session_expires_at.to_time.to_i if @response_object.session_expires_at
+        expires_at ||= @response_object.not_on_or_after.to_i if @response_object.not_on_or_after
+        expires = true unless expires_at.nil? do false end
+        token = @session_index if expires
+
+        { token: token, expires: expires, expires_at: expires_at }
       end
 
       extra { { :raw_info => @attributes, :session_index => @session_index, :response_object =>  @response_object } }
