@@ -18,10 +18,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     {
       :assertion_consumer_service_url     => "http://localhost:9080/auth/saml/callback",
       :single_logout_service_url          => "http://localhost:9080/auth/saml/slo",
-      :idp_sso_target_url                 => "https://idp.sso.example.com/signon/29490",
-      :idp_slo_target_url                 => "https://idp.sso.example.com/signoff/29490",
+      :idp_sso_service_url                => "https://idp.sso.example.com/signon/29490",
+      :idp_slo_service_url                => "https://idp.sso.example.com/signoff/29490",
       :idp_cert_fingerprint               => "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB",
-      :idp_sso_target_url_runtime_params  => {:original_param_key => :mapped_param_key},
+      :idp_sso_service_url_runtime_params => {:original_param_key => :mapped_param_key},
       :name_identifier_format             => "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
       :request_attributes                 => [
         { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
@@ -306,7 +306,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when response is a logout response" do
       before :each do
-        saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
+        saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
 
         post "/auth/saml/slo", {
           SAMLResponse: load_xml(:example_logout_response),
@@ -323,7 +323,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       subject { post "/auth/saml/slo", params, "rack.session" => { "saml_uid" => "username@example.com" } }
 
       before :each do
-        saml_options[:issuer] = "https://idp.sso.example.com/metadata/29490"
+        saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
       end
 
       let(:params) do
@@ -392,8 +392,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         end
       end
 
-      it "should give not implemented without an idp_slo_target_url" do
-        saml_options.delete(:idp_slo_target_url)
+      it "should give not implemented without an idp_slo_service_url" do
+        saml_options.delete(:idp_slo_service_url)
         post "/auth/saml/spslo"
 
         expect(last_response.status).to eq 501
@@ -404,7 +404,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
   describe 'POST /auth/saml/metadata' do
     before do
-      saml_options[:issuer] = 'http://example.com/SAML'
+      saml_options[:sp_entity_id] = 'http://example.com/SAML'
       post '/auth/saml/metadata'
     end
 
