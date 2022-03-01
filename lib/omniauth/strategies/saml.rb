@@ -13,7 +13,7 @@ module OmniAuth
       RUBYSAML_RESPONSE_OPTIONS = OneLogin::RubySaml::Response::AVAILABLE_OPTIONS
 
       option :name_identifier_format, nil
-      option :idp_sso_target_url_runtime_params, {}
+      option :idp_sso_service_url_runtime_params, {}
       option :request_attributes, [
         { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
         { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
@@ -264,7 +264,7 @@ module OmniAuth
       end
 
       def other_phase_for_spslo
-        if options.idp_slo_target_url
+        if options.idp_slo_service_url
           with_settings do |settings|
             redirect(generate_logout_request(settings))
           end
@@ -275,7 +275,7 @@ module OmniAuth
 
       def add_request_attributes_to(settings)
         settings.attribute_consuming_service.service_name options.attribute_service_name
-        settings.issuer = options.issuer
+        settings.sp_entity_id = options.sp_entity_id
 
         options.request_attributes.each do |attribute|
           settings.attribute_consuming_service.add_attribute attribute
@@ -284,7 +284,7 @@ module OmniAuth
 
       def additional_params_for_authn_request
         {}.tap do |additional_params|
-          runtime_request_parameters = options.delete(:idp_sso_target_url_runtime_params)
+          runtime_request_parameters = options.delete(:idp_sso_service_url_runtime_params)
 
           if runtime_request_parameters
             runtime_request_parameters.each_pair do |request_param_key, mapped_param_key|
