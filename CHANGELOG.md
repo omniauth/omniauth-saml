@@ -1,3 +1,15 @@
+<a name="v2.1.0"></a>
+### v2.1.0 (2022-03-01)
+
+
+#### Refactor
+
+* Rename usage of deprecated SAML options  ([74ed8df](/../../commit/74ed8df))
+
+#### Chores
+
+* bump ruby-saml to 1.12  ([15c156a](/../../commit/15c156a))
+
 <a name="v2.0.0"></a>
 ### v2.0.0 (2021-01-13)
 
