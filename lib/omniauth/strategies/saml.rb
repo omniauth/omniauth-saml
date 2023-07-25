@@ -13,7 +13,7 @@ module OmniAuth
       RUBYSAML_RESPONSE_OPTIONS = OneLogin::RubySaml::Response::AVAILABLE_OPTIONS
 
       option :name_identifier_format, nil
-      option :idp_sso_service_url_runtime_params, {}
+      option :idp_sso_service_url_runtime_params, { RelayState: 'RelayState' }
       option :request_attributes, [
         { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
         { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
@@ -116,6 +116,22 @@ module OmniAuth
         end
 
         nil
+      end
+
+      def mock_request_call
+        # Per SAML 2.0, if a RelayState param is passed, IDPs "MUST place the exact RelayState
+        # data it received with the request into the corresponding RelayState parameter in the response."
+        #
+        # By default, the "mock" `OmniAuth::Strategy` implementation will forward along any URL params,
+        # so we can in turn take any POSTed RelayState params and put them in the GET query string:
+        query_hash = request.GET.merge!(additional_params_for_authn_request.slice('RelayState'))
+        query_string = Rack::Utils.build_query(query_hash)
+
+        request.set_header(Rack::QUERY_STRING, query_string)
+        request.set_header(Rack::RACK_REQUEST_QUERY_STRING, query_string)
+        request.set_header(Rack::RACK_REQUEST_QUERY_HASH, query_hash)
+
+        super
       end
 
       private

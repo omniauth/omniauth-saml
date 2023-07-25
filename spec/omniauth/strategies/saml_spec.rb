@@ -63,6 +63,33 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
+    context 'with RelayState param' do
+      before do
+        post '/auth/saml', 'RelayState' => 'RELAY_STATE_VALUE'
+      end
+
+      it 'should get authentication page' do
+        expect(last_response).to be_redirect
+        expect(last_response.location).to match(
+          /\Ahttps:\/\/idp.sso.example.com\/signon\/29490\?SAMLRequest=.*&RelayState=RELAY_STATE_VALUE\z/,
+        )
+      end
+
+      context 'when test_mode is enabled' do
+        around do |example|
+          OmniAuth.config.test_mode = true
+          example.run
+        ensure
+          OmniAuth.config.test_mode = false
+        end
+
+        it 'should redirect to local saml callback page' do
+          expect(last_response).to be_redirect
+          expect(last_response.location).to eq('http://example.org/auth/saml/callback?RelayState=RELAY_STATE_VALUE')
+        end
+      end
+    end
+
     context "when the assertion_consumer_service_url is the default" do
       before :each do
         saml_options[:compress_request] = false
