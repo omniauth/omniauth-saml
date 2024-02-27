@@ -152,6 +152,10 @@ be present.
 
 * `:uid_attribute` - Attribute that uniquely identifies the user. If unset, the name identifier returned by the IdP is used.
 
+* `:store_request_uuid` - Used to store the request's UUID for later verification of InReponseTo.
+  By default it saves the request uuid in the session as "saml_transaction_id",
+  but also accepts a proc that will then be called with the uuid for custom storage.
+
 * See the `OneLogin::RubySaml::Settings` class in the [Ruby SAML gem](https://github.com/onelogin/ruby-saml) for additional supported options.
 
 ## IdP Metadata
