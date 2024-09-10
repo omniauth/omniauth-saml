@@ -1,3 +1,14 @@
+<a name="v2.1.1"></a>
+### v2.1.1 (2024-09-10)
+
+#### Chores
+
+* Add Ruby 3.1 to the CI matrix ([8954310](/../../commit/8954310))
+* Add Ruby 3.2 to CI matrix ([9403366](/../../commit/9403366))
+* Fix copy-pasteability of code example ([3eb8942](/../../commit/3eb8942))
+* bump dependencies and remove ruby eol versions  ([c6fc2db](/../../commit/c6fc2db))
+* Remove old maintainer email from gemspec ([9f6daa](/../../commit/9f6daa))
+
 <a name="v2.1.0"></a>
 ### v2.1.0 (2022-03-01)
 
