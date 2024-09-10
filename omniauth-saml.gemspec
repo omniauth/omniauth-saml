@@ -8,7 +8,6 @@ Gem::Specification.new do |gem|
   gem.license       = 'MIT'
 
   gem.authors       = ['Raecoo Cao', 'Ryan Wilcox', 'Rajiv Aaron Manglani', 'Steven Anderson', 'Nikos Dimitrakopoulos', 'Rudolf Vriend', 'Bruno Pedro']
-  gem.email         = 'rajiv@alum.mit.edu'
   gem.homepage      = 'https://github.com/omniauth/omniauth-saml'
 
   gem.required_ruby_version = '>= 3.1'
