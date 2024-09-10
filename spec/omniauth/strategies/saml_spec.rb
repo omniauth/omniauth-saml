@@ -410,7 +410,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     it 'should get SP metadata page' do
       expect(last_response.status).to eq 200
-      expect(last_response.header["Content-Type"]).to eq "application/xml"
+      expect(last_response.headers["Content-Type"]).to eq "application/xml"
     end
 
     it 'should configure attributes consuming service' do

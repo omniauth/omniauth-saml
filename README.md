@@ -15,8 +15,8 @@ https://github.com/omniauth/omniauth-saml
 
 ## Requirements
 
-* [OmniAuth](http://www.omniauth.org/) 1.3+
-* Ruby 2.4.x+
+* [OmniAuth](http://www.omniauth.org/) 2.1+
+* Ruby 3.1.x+
 
 ## Versioning
 
