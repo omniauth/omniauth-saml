@@ -1,3 +1,15 @@
+<a name="v2.2.0"></a>
+### v2.2.0 (2024-09-10)
+
+This release fixes:
+
+* [GHSA-jw9c-mfg7-9rx2](https://github.com/SAML-Toolkits/ruby-saml/security/advisories/GHSA-jw9c-mfg7-9rx2)
+* [GHSA-cvp8-5r8g-fhvq](https://github.com/omniauth/omniauth-saml/security/advisories/GHSA-cvp8-5r8g-fhvq)
+
+#### Chores
+
+* use semantic versioning for ruby-saml as per gem build hints ([e17f460](/../../commit/e17f460))
+
 <a name="v2.1.1"></a>
 ### v2.1.1 (2024-09-10)
 
