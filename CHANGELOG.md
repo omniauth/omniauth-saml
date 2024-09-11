@@ -1,3 +1,8 @@
+<a name="v2.2.1"></a>
+### v2.2.1 (2024-09-11)
+
+* Fix permission file permissions within published gem (#226)
+
 <a name="v2.2.0"></a>
 ### v2.2.0 (2024-09-10)
 
