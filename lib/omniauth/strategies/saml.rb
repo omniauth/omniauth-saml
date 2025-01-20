@@ -190,7 +190,7 @@ module OmniAuth
           logout_response = OneLogin::RubySaml::SloLogoutresponse.new.create(settings, logout_request_id, nil, RelayState: slo_relay_state)
           redirect(logout_response)
         else
-          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML failed to process LogoutRequest")
+          raise OmniAuth::Strategies::SAML::ValidationError.new("SAML failed to process LogoutRequest (#{logout_request.errors.join(', ')})")
         end
       end
 

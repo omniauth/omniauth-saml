@@ -346,12 +346,13 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       context "when request is an invalid logout request" do
         before :each do
           allow_any_instance_of(OneLogin::RubySaml::SloLogoutrequest).to receive(:is_valid?).and_return(false)
+          allow_any_instance_of(OneLogin::RubySaml::SloLogoutrequest).to receive(:errors).and_return(['Blank logout request'])
         end
 
         # TODO: Maybe this should not raise an exception, but return some 4xx error instead?
         it "should raise an exception" do
           expect { subject }.
-            to raise_error(OmniAuth::Strategies::SAML::ValidationError, 'SAML failed to process LogoutRequest')
+            to raise_error(OmniAuth::Strategies::SAML::ValidationError, 'SAML failed to process LogoutRequest (Blank logout request)')
         end
       end
 
