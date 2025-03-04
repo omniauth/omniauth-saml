@@ -1,3 +1,12 @@
+<a name="v2.2.2"></a>
+### v2.2.2 (2025-03-04)
+
+
+#### Features
+
+* log errors on failed logout	 ([23ef364](/../../commit/23ef364))
+
+
 <a name="v2.2.1"></a>
 ### v2.2.1 (2024-09-11)
 
