@@ -1,3 +1,17 @@
+<a name="v2.2.3"></a>
+### v2.2.3 (2025-03-12)
+
+
+#### Features
+
+* new release 2.2.3	 ([0d06a3c](/../../commit/0d06a3c))
+
+
+#### Bug Fixes
+
+* bump ruby-saml to 1.18	 ([7a348b4](/../../commit/7a348b4))
+
+
 <a name="v2.2.2"></a>
 ### v2.2.2 (2025-03-04)
 
