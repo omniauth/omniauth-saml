@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 3.1'
 
   gem.add_runtime_dependency 'omniauth', '~> 2.1'
-  gem.add_runtime_dependency 'ruby-saml', '~> 1.17'
+  gem.add_runtime_dependency 'ruby-saml', '~> 1.18'
 
   gem.add_development_dependency 'rake', '~> 13.2'
   gem.add_development_dependency 'rspec', '~> 3.13'
