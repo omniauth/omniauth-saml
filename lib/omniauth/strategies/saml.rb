@@ -30,12 +30,23 @@ module OmniAuth
       option :slo_default_relay_state
       option :uid_attribute
       option :idp_slo_session_destroy, proc { |_env, session| session.clear }
+      option :store_request_uuid
 
       def request_phase
         authn_request = OneLogin::RubySaml::Authrequest.new
 
+        store_request_uuid(authn_request.uuid)
+
         with_settings do |settings|
           redirect(authn_request.create(settings, additional_params_for_authn_request))
+        end
+      end
+
+      def store_request_uuid(uuid)
+        if options.store_request_uuid.respond_to?(:call)
+          options.store_request_uuid.call(uuid)
+        elsif options.store_request_uuid
+          session["saml_transaction_id"] = uuid
         end
       end
 
