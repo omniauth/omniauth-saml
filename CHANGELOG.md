@@ -4,7 +4,7 @@
 
 #### Features
 
-* new release 2.2.3	 ([0d06a3c](/../../commit/0d06a3c))
+* new release 2.2.3	 ([34eb354](/../../commit/34eb354))
 
 
 #### Bug Fixes
