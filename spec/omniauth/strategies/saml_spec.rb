@@ -29,7 +29,9 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         { :name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name' },
         { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' }
       ],
-      :attribute_service_name             => 'Required attributes'
+      :attribute_service_name             => 'Required attributes',
+      :sptype                             => false,
+      :auth_request_include_request_attributes => false
     }
   end
   let(:strategy) { [OmniAuth::Strategies::SAML, saml_options] }
@@ -113,6 +115,33 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         expect(query).to have_key('SigAlg')
 
         expect(query['SigAlg']).to eq XMLSecurity::Document::RSA_SHA256
+      end
+    end
+
+    context 'when using eidas extensions in authn request' do
+      subject { get '/auth/saml' }
+
+      before do
+        saml_options[:compress_request] = false
+
+        saml_options[:sptype] = 'private'
+        saml_options[:auth_request_include_request_attributes] = true
+      end
+
+      it "should contain correct sptype and RequestedAttributes" do
+        is_expected.to be_redirect
+
+        location = URI.parse(last_response.location)
+        query = Rack::Utils.parse_query location.query
+        expect(query).to have_key('SAMLRequest')
+
+        request = REXML::Document.new(Base64.decode64(query['SAMLRequest']))
+        request.elements.each('/samlp:AuthnRequest/samlp:Extensions/eidas:SPType') do |element|
+          expect(element.text).to match /private/
+        end
+        request.elements.each('/samlp:AuthnRequest/samlp:Extensions/eidas:RequestedAttributes/eidas:RequestedAttribute') do |element|
+          expect(element.attributes['isRequired']).to match /false/
+        end
       end
     end
   end
@@ -451,4 +480,5 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       expect(OmniAuth.strategies).to include(described_class, subclass)
     end
   end
+
 end

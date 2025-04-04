@@ -15,28 +15,47 @@ module OmniAuth
       option :name_identifier_format, nil
       option :idp_sso_service_url_runtime_params, {}
       option :request_attributes, [
-        { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
-        { :name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name' },
-        { :name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name' },
-        { :name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name' }
+          {:name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address'},
+          {:name => 'name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Full name'},
+          {:name => 'first_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Given name'},
+          {:name => 'last_name', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Family name'}
       ]
       option :attribute_service_name, 'Required attributes'
       option :attribute_statements, {
-        name: ["name"],
-        email: ["email", "mail"],
-        first_name: ["first_name", "firstname", "firstName"],
-        last_name: ["last_name", "lastname", "lastName"]
+          name: ["name"],
+          email: ["email", "mail"],
+          first_name: ["first_name", "firstname", "firstName"],
+          last_name: ["last_name", "lastname", "lastName"]
       }
       option :slo_default_relay_state
       option :uid_attribute
+      option :auth_request_include_request_attributes, false
+      option :sptype, false
       option :idp_slo_session_destroy, proc { |_env, session| session.clear }
 
       def request_phase
         authn_request = OneLogin::RubySaml::Authrequest.new
 
-        with_settings do |settings|
-          redirect(authn_request.create(settings, additional_params_for_authn_request))
+        options[:assertion_consumer_service_url] ||= callback_url
+        settings = OneLogin::RubySaml::Settings.new(options)
+
+        if options[:sptype] != false
+          settings.extensions[:sptype] = options[:sptype]
         end
+        if options[:auth_request_include_request_attributes] == true
+          settings.extensions[:requested_attributes] = with_requested_attributes
+        end
+
+        redirect(authn_request.create(settings, additional_params_for_authn_request))
+      end
+
+      def with_requested_attributes
+        raise OmniAuth::Strategies::SAML::ValidationError.new('Cannot convert option request_attributes to samlp:Extensions/eidas:RequestedAttributes') unless options[:request_attributes].respond_to? :each
+        attrs = []
+        options[:request_attributes].each do |orig_attr|
+          attrs.push(OneLogin::RubySaml::RequestedAttribute.new({:Name => orig_attr[:name], :FriendlyName => orig_attr[:friendly_name], :NameFormat => orig_attr[:name_format], :isRequired => orig_attr[:required] || false}))
+        end
+        attrs
       end
 
       def callback_phase
@@ -61,7 +80,7 @@ module OmniAuth
         response = request.params["SAMLResponse"]
         response = (response =~ /^</) ? response : Base64.decode64(response)
         document = XMLSecurity::SignedDocument::new(response)
-        cert_element = REXML::XPath.first(document, "//ds:X509Certificate", { "ds"=> 'http://www.w3.org/2000/09/xmldsig#' })
+        cert_element = REXML::XPath.first(document, "//ds:X509Certificate", {"ds" => 'http://www.w3.org/2000/09/xmldsig#'})
         base64_cert = cert_element.text
         cert_text = Base64.decode64(base64_cert)
         cert = OpenSSL::X509::Certificate.new(cert_text)
@@ -108,7 +127,7 @@ module OmniAuth
         Hash[found_attributes]
       end
 
-      extra { { :raw_info => @attributes, :session_index => @session_index, :response_object =>  @response_object } }
+      extra { {:raw_info => @attributes, :session_index => @session_index, :response_object => @response_object} }
 
       def find_attribute_by(keys)
         keys.each do |key|
@@ -180,7 +199,7 @@ module OmniAuth
         logout_request = OneLogin::RubySaml::SloLogoutrequest.new(raw_request, {}.merge(settings: settings).merge(get_params: @request.params))
 
         if logout_request.is_valid? &&
-          logout_request.name_id == session["saml_uid"]
+            logout_request.name_id == session["saml_uid"]
 
           # Actually log out this session
           options[:idp_slo_session_destroy].call @env, session
@@ -231,7 +250,7 @@ module OmniAuth
 
       def options_for_response_object
         # filter options to select only extra parameters
-        opts = options.select {|k,_| RUBYSAML_RESPONSE_OPTIONS.include?(k.to_sym)}
+        opts = options.select { |k, _| RUBYSAML_RESPONSE_OPTIONS.include?(k.to_sym) }
 
         # symbolize keys without activeSupport/symbolize_keys (ruby-saml use symbols)
         opts.inject({}) do |new_hash, (key, value)|
@@ -247,7 +266,7 @@ module OmniAuth
 
           add_request_attributes_to(settings) if options.request_attributes.length > 0
 
-          Rack::Response.new(response.generate(settings), 200, { "Content-Type" => "application/xml" }).finish
+          Rack::Response.new(response.generate(settings), 200, {"Content-Type" => "application/xml"}).finish
         end
       end
 
@@ -269,7 +288,7 @@ module OmniAuth
             redirect(generate_logout_request(settings))
           end
         else
-          Rack::Response.new("Not Implemented", 501, { "Content-Type" => "text/html" }).finish
+          Rack::Response.new("Not Implemented", 501, {"Content-Type" => "text/html"}).finish
         end
       end
 
