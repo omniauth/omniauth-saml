@@ -43,9 +43,6 @@ module OmniAuth
         raise OmniAuth::Strategies::SAML::ValidationError.new("SAML response missing") unless request.params["SAMLResponse"]
 
         with_settings do |settings|
-          # Call a fingerprint validation method if there's one
-          validate_fingerprint(settings) if options.idp_cert_fingerprint_validator
-
           handle_response(request.params["SAMLResponse"], options_for_response_object, settings) do
             super
           end
@@ -216,17 +213,6 @@ module OmniAuth
       def with_settings
         options[:assertion_consumer_service_url] ||= callback_url
         yield OneLogin::RubySaml::Settings.new(options)
-      end
-
-      def validate_fingerprint(settings)
-        fingerprint_exists = options.idp_cert_fingerprint_validator[response_fingerprint]
-
-        unless fingerprint_exists
-          raise OmniAuth::Strategies::SAML::ValidationError.new("Non-existent fingerprint")
-        end
-
-        # id_cert_fingerprint becomes the given fingerprint if it exists
-        settings.idp_cert_fingerprint = fingerprint_exists
       end
 
       def options_for_response_object
