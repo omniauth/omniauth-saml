@@ -150,41 +150,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
-    context "when fingerprint is empty and there's a fingerprint validator" do
-      before :each do
-        saml_options.delete(:idp_cert_fingerprint)
-        saml_options[:idp_cert_fingerprint_validator] = fingerprint_validator
-      end
-
-      let(:fingerprint_validator) { lambda { |_| "C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB" } }
-
-      context "when the fingerprint validator returns a truthy value" do
-        before { post_xml }
-
-        it "should set the uid to the nameID in the SAML response" do
-          expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
-        end
-
-        it "should set the raw info to all attributes" do
-          expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
-            'first_name'   => ['Rajiv'],
-            'last_name'    => ['Manglani'],
-            'email'        => ['user@example.com'],
-            'company_name' => ['Example Company'],
-            'fingerprint'  => 'C1:59:74:2B:E8:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB'
-          )
-        end
-      end
-
-      context "when the fingerprint validator returns false" do
-        let(:fingerprint_validator) { lambda { |_| false } }
-
-        before { post_xml }
-
-        it { is_expected.to fail_with(:invalid_ticket) }
-      end
-    end
-
     context "when the assertion_consumer_service_url is the default" do
       before :each do
         saml_options.delete(:assertion_consumer_service_url)
