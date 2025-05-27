@@ -1,3 +1,12 @@
+<a name="v2.2.4"></a>
+### v2.2.4 (2025-05-14)
+
+
+#### Bug Fixes
+
+* remove :idp_cert_fingerprint_validator	 ([c573690](/../../commit/c573690))
+* Fix GHSA-cgp2-2cmh-pf7x
+
 <a name="v2.2.3"></a>
 ### v2.2.3 (2025-03-12)
 
