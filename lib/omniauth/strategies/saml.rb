@@ -143,20 +143,12 @@ module OmniAuth
       end
 
       def slo_relay_state
-        default_relay_state = resolve_slo_default_relay_state
-        relay_state = if request.params.has_key?("RelayState") && request.params["RelayState"] != ""
-          request.params["RelayState"]
-        else
-          default_relay_state
-        end
+        return resolve_slo_default_relay_state unless request.params.has_key?("RelayState") && request.params["RelayState"] != ""
 
-        validated_relay_state = validate_relay_state(relay_state)
+        validated_relay_state = validate_relay_state(request.params["RelayState"])
         return validated_relay_state if validated_relay_state
 
-        # fall back to a validated default when the provided relay state is unsafe
-        return validate_relay_state(default_relay_state) unless relay_state.equal?(default_relay_state)
-
-        nil
+        resolve_slo_default_relay_state
       end
 
       def handle_logout_response(raw_response, settings)
@@ -283,14 +275,12 @@ module OmniAuth
 
       def resolve_slo_default_relay_state
         slo_default_relay_state = options.slo_default_relay_state
-        if slo_default_relay_state.respond_to?(:call)
-          if slo_default_relay_state.arity == 1
-            slo_default_relay_state.call(request)
-          else
-            slo_default_relay_state.call
-          end
+        return slo_default_relay_state unless slo_default_relay_state.respond_to?(:call)
+
+        if slo_default_relay_state.arity == 1
+          slo_default_relay_state.call(request)
         else
-          slo_default_relay_state
+          slo_default_relay_state.call
         end
       end
 
