@@ -1,5 +1,6 @@
 require 'omniauth'
 require 'ruby-saml'
+require 'uri'
 
 module OmniAuth
   module Strategies
@@ -142,20 +143,20 @@ module OmniAuth
       end
 
       def slo_relay_state
-        if request.params.has_key?("RelayState") && request.params["RelayState"] != ""
+        default_relay_state = resolve_slo_default_relay_state
+        relay_state = if request.params.has_key?("RelayState") && request.params["RelayState"] != ""
           request.params["RelayState"]
         else
-          slo_default_relay_state = options.slo_default_relay_state
-          if slo_default_relay_state.respond_to?(:call)
-            if slo_default_relay_state.arity == 1
-              slo_default_relay_state.call(request)
-            else
-              slo_default_relay_state.call
-            end
-          else
-            slo_default_relay_state
-          end
+          default_relay_state
         end
+
+        validated_relay_state = validate_relay_state(relay_state)
+        return validated_relay_state if validated_relay_state
+
+        # fall back to a validated default when the provided relay state is unsafe
+        return validate_relay_state(default_relay_state) unless relay_state.equal?(default_relay_state)
+
+        nil
       end
 
       def handle_logout_response(raw_response, settings)
@@ -278,6 +279,41 @@ module OmniAuth
             end
           end
         end
+      end
+
+      def resolve_slo_default_relay_state
+        slo_default_relay_state = options.slo_default_relay_state
+        if slo_default_relay_state.respond_to?(:call)
+          if slo_default_relay_state.arity == 1
+            slo_default_relay_state.call(request)
+          else
+            slo_default_relay_state.call
+          end
+        else
+          slo_default_relay_state
+        end
+      end
+
+      def validate_relay_state(relay_state)
+        return nil if relay_state.nil?
+
+        sanitized_relay_state = relay_state.to_s.strip
+        return nil if sanitized_relay_state.empty?
+        return nil if sanitized_relay_state.start_with?('//')
+
+        uri = URI.parse(sanitized_relay_state)
+
+        return nil if uri.scheme || uri.host
+
+        path = uri.path
+        return nil unless path && path.start_with?('/')
+
+        sanitized = String.new(path)
+        sanitized << "?#{uri.query}" if uri.query
+        sanitized << "##{uri.fragment}" if uri.fragment
+        sanitized
+      rescue URI::Error
+        nil
       end
     end
   end

@@ -275,12 +275,29 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
         post "/auth/saml/slo", {
           SAMLResponse: load_xml(:example_logout_response),
-          RelayState: "https://example.com/",
+          RelayState: "/signed-out",
         }, "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
       end
       it "should redirect to relaystate" do
         expect(last_response).to be_redirect
-        expect(last_response.location).to match /https:\/\/example.com\//
+        expect(last_response.location).to eq("/signed-out")
+      end
+    end
+
+    context "when response relay state is unsafe" do
+      before :each do
+        saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
+        saml_options["slo_default_relay_state"] = "/signed-out"
+
+        post "/auth/saml/slo", {
+          SAMLResponse: load_xml(:example_logout_response),
+          RelayState: "https://attacker.test/",
+        }, "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
+      end
+
+      it "should redirect to the default relay state" do
+        expect(last_response).to be_redirect
+        expect(last_response.location).to eq("/signed-out")
       end
     end
 
@@ -294,7 +311,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       let(:params) do
         {
           "SAMLRequest" => load_xml(:example_logout_request),
-          "RelayState" => "https://example.com/",
+          "RelayState" => "/signed-out",
         }
       end
 
@@ -304,7 +321,26 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         it "should redirect to logout response" do
           expect(last_response).to be_redirect
           expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
-          expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+          expect(last_response.location).to match /RelayState=%2Fsigned-out/
+        end
+      end
+
+      context "when relay state is unsafe" do
+        let(:params) do
+          {
+            "SAMLRequest" => load_xml(:example_logout_request),
+            "RelayState" => "https://attacker.test",
+          }
+        end
+
+        before do
+          saml_options["slo_default_relay_state"] = "/signed-out"
+          subject
+        end
+
+        it "uses the default relay state" do
+          expect(last_response).to be_redirect
+          expect(last_response.location).to match /RelayState=%2Fsigned-out/
         end
       end
 
@@ -339,23 +375,47 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
         expect(last_response).to be_redirect
         expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
-        expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+        expect(last_response.location).to match /RelayState=%2Fsigned-out/
       end
 
       it "should redirect to logout request" do
-        test_default_relay_state("https://example.com/")
+        test_default_relay_state("/signed-out")
       end
 
       it "should redirect to logout request with a block" do
         test_default_relay_state do
-          "https://example.com/"
+          "/signed-out"
         end
       end
 
       it "should redirect to logout request with a block with a request parameter" do
         test_default_relay_state do |request|
-          "https://example.com/"
+          "/signed-out"
         end
+      end
+
+      it "falls back to default when relay state is unsafe" do
+        saml_options["slo_default_relay_state"] = "/signed-out"
+        post "/auth/saml/spslo", { "RelayState" => "https://attacker.test" }
+
+        expect(last_response).to be_redirect
+        expect(last_response.location).to match /RelayState=%2Fsigned-out/
+      end
+
+      it "rejects protocol relative relay state" do
+        saml_options["slo_default_relay_state"] = "/signed-out"
+        post "/auth/saml/spslo", { "RelayState" => "//attacker.test" }
+
+        expect(last_response).to be_redirect
+        expect(last_response.location).to match /RelayState=%2Fsigned-out/
+      end
+
+      it "rejects javascript relay state" do
+        saml_options["slo_default_relay_state"] = "/signed-out"
+        post "/auth/saml/spslo", { "RelayState" => "javascript:alert(1)" }
+
+        expect(last_response).to be_redirect
+        expect(last_response.location).to match /RelayState=%2Fsigned-out/
       end
 
       it "should give not implemented without an idp_slo_service_url" do
