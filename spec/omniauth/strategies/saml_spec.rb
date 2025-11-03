@@ -269,15 +269,21 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
     end
 
+  end
+
+  describe 'POST /auth/saml/slo' do
+    before do
+      saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
+    end
+
     context "when response is a logout response" do
       before :each do
-        saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
-
         post "/auth/saml/slo", {
           SAMLResponse: load_xml(:example_logout_response),
           RelayState: "https://example.com/",
         }, "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
       end
+
       it "should redirect to relaystate" do
         expect(last_response).to be_redirect
         expect(last_response.location).to match /https:\/\/example.com\//
@@ -286,10 +292,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when request is a logout request" do
       subject { post "/auth/saml/slo", params, "rack.session" => { "saml_uid" => "username@example.com" } }
-
-      before :each do
-        saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
-      end
 
       let(:params) do
         {
@@ -331,40 +333,40 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         end
       end
     end
+  end
 
-    context "when sp initiated SLO" do
-      def test_default_relay_state(static_default_relay_state = nil, &block_default_relay_state)
-        saml_options["slo_default_relay_state"] = static_default_relay_state || block_default_relay_state
-        post "/auth/saml/spslo"
+  describe 'POST /auth/saml/spslo' do
+    def test_default_relay_state(static_default_relay_state = nil, &block_default_relay_state)
+      saml_options["slo_default_relay_state"] = static_default_relay_state || block_default_relay_state
+      post "/auth/saml/spslo"
 
-        expect(last_response).to be_redirect
-        expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
-        expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+      expect(last_response).to be_redirect
+      expect(last_response.location).to match /https:\/\/idp.sso.example.com\/signoff\/29490/
+      expect(last_response.location).to match /RelayState=https%3A%2F%2Fexample.com%2F/
+    end
+
+    it "should redirect to logout request" do
+      test_default_relay_state("https://example.com/")
+    end
+
+    it "should redirect to logout request with a block" do
+      test_default_relay_state do
+        "https://example.com/"
       end
+    end
 
-      it "should redirect to logout request" do
-        test_default_relay_state("https://example.com/")
+    it "should redirect to logout request with a block with a request parameter" do
+      test_default_relay_state do |request|
+        "https://example.com/"
       end
+    end
 
-      it "should redirect to logout request with a block" do
-        test_default_relay_state do
-          "https://example.com/"
-        end
-      end
+    it "should give not implemented without an idp_slo_service_url" do
+      saml_options.delete(:idp_slo_service_url)
+      post "/auth/saml/spslo"
 
-      it "should redirect to logout request with a block with a request parameter" do
-        test_default_relay_state do |request|
-          "https://example.com/"
-        end
-      end
-
-      it "should give not implemented without an idp_slo_service_url" do
-        saml_options.delete(:idp_slo_service_url)
-        post "/auth/saml/spslo"
-
-        expect(last_response.status).to eq 501
-        expect(last_response.body).to match /Not Implemented/
-      end
+      expect(last_response.status).to eq 501
+      expect(last_response.body).to match /Not Implemented/
     end
   end
 
