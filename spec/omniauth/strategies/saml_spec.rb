@@ -115,6 +115,29 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         expect(query['SigAlg']).to eq XMLSecurity::Document::RSA_SHA256
       end
     end
+
+    context 'with store_request_uuid set' do
+      let(:store_request_uuid) { true }
+      let(:uuid_regex) { /_\w{8}-\w{4}-\w{4}-\w{4}-\w{11}/ }
+
+      before do
+        saml_options[:store_request_uuid] = store_request_uuid
+
+        get '/auth/saml'
+      end
+
+      it 'stores uuid as saml_transaction_id' do
+        expect(session['saml_transaction_id']).to match(uuid_regex)
+      end
+
+      context 'using a proc' do
+        let(:store_request_uuid) { Proc.new { |uuid| @uuid_stored = uuid } }
+
+        it 'allows customized storage of request uuid' do
+          expect(@uuid_stored).to match(uuid_regex)
+        end
+      end
+    end
   end
 
   describe 'POST /auth/saml/callback' do
