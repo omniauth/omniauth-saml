@@ -276,10 +276,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context "when response is a logout response" do
-      before do
-        saml_options[:slo_enabled] = true
-      end
-
       before :each do
         post "/auth/saml/slo", {
           SAMLResponse: load_xml(:example_logout_response),
@@ -336,13 +332,21 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         end
       end
     end
+
+    context "when SLO is disabled" do
+      before do
+        saml_options[:slo_enabled] = false
+        post "/auth/saml/slo"
+      end
+
+      it "should return not implemented" do
+        expect(last_response.status).to eq 501
+        expect(last_response.body).to eq "Not Implemented"
+      end
+    end
   end
 
   describe 'POST /auth/saml/spslo' do
-    before do
-      saml_options[:slo_enabled] = true
-    end
-
     def test_default_relay_state(static_default_relay_state = nil, &block_default_relay_state)
       saml_options["slo_default_relay_state"] = static_default_relay_state || block_default_relay_state
       post "/auth/saml/spslo"
@@ -374,6 +378,18 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       expect(last_response.status).to eq 501
       expect(last_response.body).to match /Not Implemented/
+    end
+
+    context "when SLO is disabled" do
+      before do
+        saml_options[:slo_enabled] = false
+        post "/auth/saml/spslo"
+      end
+
+      it "should return not implemented" do
+        expect(last_response.status).to eq 501
+        expect(last_response.body).to eq "Not Implemented"
+      end
     end
   end
 

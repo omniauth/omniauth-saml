@@ -74,8 +74,12 @@ module OmniAuth
           if on_subpath?(:metadata)
             other_phase_for_metadata
           elsif on_subpath?(:slo)
+            return slo_disabled_response unless slo_enabled?
+
             other_phase_for_slo
           elsif on_subpath?(:spslo)
+            return slo_disabled_response unless slo_enabled?
+
             other_phase_for_spslo
           else
             call_app!
