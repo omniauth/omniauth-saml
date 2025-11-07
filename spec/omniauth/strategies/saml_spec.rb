@@ -268,7 +268,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         expect(last_request.env['omniauth.error'].message).to eq("SAML response missing 'missing_attribute' attribute")
       end
     end
-
   end
 
   describe 'POST /auth/saml/slo' do
@@ -277,6 +276,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context "when response is a logout response" do
+      before do
+        saml_options[:slo_enabled] = true
+      end
+
       before :each do
         post "/auth/saml/slo", {
           SAMLResponse: load_xml(:example_logout_response),
@@ -336,6 +339,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
 
   describe 'POST /auth/saml/spslo' do
+    before do
+      saml_options[:slo_enabled] = true
+    end
+
     def test_default_relay_state(static_default_relay_state = nil, &block_default_relay_state)
       saml_options["slo_default_relay_state"] = static_default_relay_state || block_default_relay_state
       post "/auth/saml/spslo"

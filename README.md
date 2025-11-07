@@ -103,6 +103,8 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
   instance will be passed to this callable if it has an arity of 1. If the value is a string,
   the string will be returned, when the `RelayState` is called. Optional.
 
+* `:slo_enabled` - Enables or disables Single Logout (SLO). Set to `false` to disable SLO. Defaults to `true`. Optional.
+
 * `:idp_sso_service_url_runtime_params` - A dynamic mapping of request params that exist
   during the request phase of OmniAuth that should to be sent to the IdP after a specific
   mapping. So for example, a param `original_request_param` with value `original_param_value`,
@@ -112,7 +114,7 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
 * `:idp_cert` - The identity provider's certificate in PEM format. Takes precedence
   over the fingerprint option below. This option or `:idp_cert_multi` or `:idp_cert_fingerprint` must
   be present.
-  
+
 * `:idp_cert_multi` - Multiple identity provider certificates in PEM format. Takes precedence
 over the fingerprint option below. This option `:idp_cert` or `:idp_cert_fingerprint` must
 be present.
@@ -192,7 +194,9 @@ Single Logout can be Service Provider initiated or Identity Provider initiated.
 For SP initiated logout, the `idp_slo_service_url` option must be set to the logout url on the IdP,
 and users directed to `user_saml_omniauth_authorize_path + '/spslo'` after logging out locally. For
 IdP initiated logout, logout requests from the IdP should go to `/auth/saml/slo` (this can be
-advertised in metadata by setting the `single_logout_service_url` config option).
+advertised in metadata by setting the `single_logout_service_url` config option). If you wish to
+disable Single Logout entirely (both SP and IdP initiated), set `:slo_enabled => false`; the `/auth/saml/slo`
+and `/auth/saml/spslo` endpoints will then respond with HTTP 501 Not Implemented.
 
 When using Devise as an authentication solution, the SP initiated flow can be integrated
 in the `SessionsController#destroy` action.
