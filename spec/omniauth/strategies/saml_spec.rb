@@ -268,7 +268,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         expect(last_request.env['omniauth.error'].message).to eq("SAML response missing 'missing_attribute' attribute")
       end
     end
-
   end
 
   describe 'POST /auth/saml/slo' do
@@ -333,6 +332,18 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         end
       end
     end
+
+    context "when SLO is disabled" do
+      before do
+        saml_options[:slo_enabled] = false
+        post "/auth/saml/slo"
+      end
+
+      it "should return not implemented" do
+        expect(last_response.status).to eq 501
+        expect(last_response.body).to eq "Not Implemented"
+      end
+    end
   end
 
   describe 'POST /auth/saml/spslo' do
@@ -367,6 +378,18 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       expect(last_response.status).to eq 501
       expect(last_response.body).to match /Not Implemented/
+    end
+
+    context "when SLO is disabled" do
+      before do
+        saml_options[:slo_enabled] = false
+        post "/auth/saml/spslo"
+      end
+
+      it "should return not implemented" do
+        expect(last_response.status).to eq 501
+        expect(last_response.body).to eq "Not Implemented"
+      end
     end
   end
 
