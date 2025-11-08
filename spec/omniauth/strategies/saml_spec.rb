@@ -271,16 +271,25 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
 
   describe 'POST /auth/saml/slo' do
+    subject { post "/auth/saml/slo", params, opts}
+    
     before do
       saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
     end
 
     context "when response is a logout response" do
-      before :each do
-        post "/auth/saml/slo", {
+      let(:params) do
+        {
           SAMLResponse: load_xml(:example_logout_response),
           RelayState: "https://example.com/",
-        }, "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
+        }
+      end
+      let(:opts) do
+        "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
+      end
+      
+      before :each do
+        subject
       end
 
       it "should redirect to relaystate" do
