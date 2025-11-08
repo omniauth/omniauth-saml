@@ -6,10 +6,6 @@ RSpec::Matchers.define :fail_with do |message|
   end
 end
 
-def post_xml(xml = :example_response, opts = {})
-  post "/auth/saml/callback", opts.merge({'SAMLResponse' => load_xml(xml)})
-end
-
 describe OmniAuth::Strategies::SAML, :type => :strategy do
   include OmniAuth::Test::StrategyTestCase
 
@@ -121,6 +117,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     subject { last_response }
 
     let(:xml) { :example_response }
+
+    def post_xml(xml = :example_response, opts = {})
+      post "/auth/saml/callback", opts.merge({'SAMLResponse' => load_xml(xml)})
+    end
 
     before :each do
       allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 20, 40, 00))
