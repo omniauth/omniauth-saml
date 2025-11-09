@@ -114,12 +114,16 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
 
   describe 'POST /auth/saml/callback' do
-    subject { last_response }
-
     let(:xml) { :example_response }
+    let(:params) { { 'SAMLResponse' => load_xml(xml) } }
 
-    def post_xml(xml = :example_response, opts = {})
-      post "/auth/saml/callback", opts.merge({'SAMLResponse' => load_xml(xml)})
+    subject(:post_callback_response) do
+      post "/auth/saml/callback", params
+    end
+
+    subject do
+      post_callback_response
+      last_response
     end
 
     before :each do
@@ -128,7 +132,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when the response is valid" do
       before :each do
-        post_xml
+        post_callback_response
       end
 
       it "should set the uid to the nameID in the SAML response" do
@@ -154,24 +158,28 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       before :each do
         saml_options.delete(:assertion_consumer_service_url)
         OmniAuth.config.full_host = 'http://localhost:9080'
-        post_xml
+        post_callback_response
       end
 
       it { is_expected.not_to fail_with(:invalid_ticket) }
     end
 
     context "when there is no SAMLResponse parameter" do
+      let(:params) { {} }
+
       before :each do
-        post '/auth/saml/callback'
+        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when there is no name id in the XML" do
+      let(:xml) { :no_name_id }
+
       before :each do
         allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 23, 55, 00))
-        post_xml :no_name_id
+        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
@@ -180,35 +188,41 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when the fingerprint is invalid" do
       before :each do
         saml_options[:idp_cert_fingerprint] = "00:00:00:00:00:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB"
-        post_xml
+        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the digest is invalid" do
+      let(:xml) { :digest_mismatch }
+
       before :each do
-        post_xml :digest_mismatch
+        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the signature is invalid" do
+      let(:xml) { :invalid_signature }
+
       before :each do
-        post_xml :invalid_signature
+        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the response is stale" do
+      let(:xml) { :example_response }
+
       before :each do
         allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 20, 45, 00))
       end
 
       context "without :allowed_clock_drift option" do
-        before { post_xml :example_response }
+        before { post_callback_response }
 
         it { is_expected.to fail_with(:invalid_ticket) }
       end
@@ -216,7 +230,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       context "with :allowed_clock_drift option" do
         before :each do
           saml_options[:allowed_clock_drift] = 60
-          post_xml :example_response
+          post_callback_response
         end
 
         it { is_expected.to_not fail_with(:invalid_ticket) }
@@ -224,6 +238,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context "when response has custom attributes" do
+      let(:xml) { :custom_attributes }
+
       before :each do
         saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
         saml_options[:attribute_statements] = {
@@ -231,7 +247,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           first_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
           last_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"]
         }
-        post_xml :custom_attributes
+
+        post_callback_response
       end
 
       it "should obey attribute statements mapping" do
@@ -245,10 +262,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     end
 
     context "when using custom user id attribute" do
+      let(:xml) { :custom_attributes }
+
       before :each do
         saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
         saml_options[:uid_attribute] = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-        post_xml :custom_attributes
+        post_callback_response
       end
 
       it "should return user id attribute" do
@@ -259,11 +278,10 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when using custom user id attribute, but it is missing" do
       before :each do
         saml_options[:uid_attribute] = "missing_attribute"
-        post_xml
       end
 
       it "should fail to authenticate" do
-        should fail_with(:invalid_ticket)
+        expect(post_callback_response).to fail_with(:invalid_ticket)
         expect(last_request.env['omniauth.error']).to be_instance_of(OmniAuth::Strategies::SAML::ValidationError)
         expect(last_request.env['omniauth.error'].message).to eq("SAML response missing 'missing_attribute' attribute")
       end
@@ -271,8 +289,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
   end
 
   describe 'POST /auth/saml/slo' do
-    subject { post "/auth/saml/slo", params, opts}
-    
+    subject { post "/auth/saml/slo", params, opts }
+
     before do
       saml_options[:sp_entity_id] = "https://idp.sso.example.com/metadata/29490"
     end
@@ -285,9 +303,9 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         }
       end
       let(:opts) do
-        "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"}
+        { "rack.session" => {"saml_transaction_id" => "_3fef1069-d0c6-418a-b68d-6f008a4787e9"} }
       end
-      
+
       before :each do
         subject
       end
