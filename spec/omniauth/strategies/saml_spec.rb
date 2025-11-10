@@ -127,12 +127,14 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when the response is valid" do
       it "should set the uid to the nameID in the SAML response" do
-        subject
+        post_callback_response
+
         expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
       end
 
       it "should set the raw info to all attributes" do
-        subject
+        post_callback_response
+
         expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
           'first_name'   => ['Rajiv'],
           'last_name'    => ['Manglani'],
@@ -143,7 +145,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the response_object to the response object from ruby_saml response" do
-        subject
+        post_callback_response
+
         expect(auth_hash['extra']['response_object']).to be_kind_of(OneLogin::RubySaml::Response)
       end
     end
@@ -224,7 +227,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           last_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"]
         }
 
-        subject
+        post_callback_response
       end
 
       it "should obey attribute statements mapping" do
@@ -243,7 +246,8 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       before :each do
         saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
         saml_options[:uid_attribute] = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-        subject
+
+        post_callback_response
       end
 
       it "should return user id attribute" do
@@ -257,7 +261,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should fail to authenticate" do
-        expect(subject).to fail_with(:invalid_ticket)
+        expect(post_callback_response).to fail_with(:invalid_ticket)
         expect(last_request.env['omniauth.error']).to be_instance_of(OmniAuth::Strategies::SAML::ValidationError)
         expect(last_request.env['omniauth.error'].message).to eq("SAML response missing 'missing_attribute' attribute")
       end
