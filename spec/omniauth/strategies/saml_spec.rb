@@ -121,25 +121,18 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       post "/auth/saml/callback", params
     end
 
-    subject do
-      post_callback_response
-      last_response
-    end
-
     before :each do
       allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 20, 40, 00))
     end
 
     context "when the response is valid" do
-      before :each do
-        post_callback_response
-      end
-
       it "should set the uid to the nameID in the SAML response" do
+        subject
         expect(auth_hash['uid']).to eq '_1f6fcf6be5e13b08b1e3610e7ff59f205fbd814f23'
       end
 
       it "should set the raw info to all attributes" do
+        subject
         expect(auth_hash['extra']['raw_info'].all.to_hash).to eq(
           'first_name'   => ['Rajiv'],
           'last_name'    => ['Manglani'],
@@ -150,6 +143,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should set the response_object to the response object from ruby_saml response" do
+        subject
         expect(auth_hash['extra']['response_object']).to be_kind_of(OneLogin::RubySaml::Response)
       end
     end
@@ -158,7 +152,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       before :each do
         saml_options.delete(:assertion_consumer_service_url)
         OmniAuth.config.full_host = 'http://localhost:9080'
-        post_callback_response
       end
 
       it { is_expected.not_to fail_with(:invalid_ticket) }
@@ -166,10 +159,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
     context "when there is no SAMLResponse parameter" do
       let(:params) { {} }
-
-      before :each do
-        post_callback_response
-      end
 
       it { is_expected.to fail_with(:invalid_ticket) }
     end
@@ -179,7 +168,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
 
       before :each do
         allow(Time).to receive(:now).and_return(Time.utc(2012, 11, 8, 23, 55, 00))
-        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
@@ -188,7 +176,6 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when the fingerprint is invalid" do
       before :each do
         saml_options[:idp_cert_fingerprint] = "00:00:00:00:00:0C:6C:A9:41:0F:6E:83:F6:D1:52:25:45:58:89:FB"
-        post_callback_response
       end
 
       it { is_expected.to fail_with(:invalid_ticket) }
@@ -197,19 +184,11 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
     context "when the digest is invalid" do
       let(:xml) { :digest_mismatch }
 
-      before :each do
-        post_callback_response
-      end
-
       it { is_expected.to fail_with(:invalid_ticket) }
     end
 
     context "when the signature is invalid" do
       let(:xml) { :invalid_signature }
-
-      before :each do
-        post_callback_response
-      end
 
       it { is_expected.to fail_with(:invalid_ticket) }
     end
@@ -222,15 +201,12 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       context "without :allowed_clock_drift option" do
-        before { post_callback_response }
-
         it { is_expected.to fail_with(:invalid_ticket) }
       end
 
       context "with :allowed_clock_drift option" do
         before :each do
           saml_options[:allowed_clock_drift] = 60
-          post_callback_response
         end
 
         it { is_expected.to_not fail_with(:invalid_ticket) }
@@ -248,7 +224,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
           last_name: ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"]
         }
 
-        post_callback_response
+        subject
       end
 
       it "should obey attribute statements mapping" do
@@ -267,7 +243,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       before :each do
         saml_options[:idp_cert_fingerprint] = "3B:82:F1:F5:54:FC:A8:FF:12:B8:4B:B8:16:61:1D:E4:8E:9B:E2:3C"
         saml_options[:uid_attribute] = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-        post_callback_response
+        subject
       end
 
       it "should return user id attribute" do
@@ -281,7 +257,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       it "should fail to authenticate" do
-        expect(post_callback_response).to fail_with(:invalid_ticket)
+        expect(subject).to fail_with(:invalid_ticket)
         expect(last_request.env['omniauth.error']).to be_instance_of(OmniAuth::Strategies::SAML::ValidationError)
         expect(last_request.env['omniauth.error'].message).to eq("SAML response missing 'missing_attribute' attribute")
       end
