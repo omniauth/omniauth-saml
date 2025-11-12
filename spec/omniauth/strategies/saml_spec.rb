@@ -332,7 +332,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       subject(:post_slo_response) { post "/auth/saml/slo", params, opts }
 
       context "when relay state is relative" do
-        let(:params) {super().merge(RelayState: "/signed-out")}
+        let(:params) { super().merge(RelayState: "/signed-out") }
 
         it "redirects to the relaystate" do
           post_slo_response
@@ -343,7 +343,7 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
       end
 
       context "when relay state is an absolute https URL" do
-        let(:params) {super().merge(RelayState: "https://example.com/")}
+        let(:params) { super().merge(RelayState: "https://example.com/") }
 
         it "redirects without a location header" do
           post_slo_response
@@ -357,15 +357,15 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         let(:saml_options) { super().merge(slo_default_relay_state: '/signed-out') }
 
         context "when response relay state is valid" do
-          let(:params) {super().merge(RelayState: "/safe/logout")}
+          let(:params) { super().merge(RelayState: "/safe/logout") }
 
-          it {is_expected.to be_redirect.and have_attributes(location: '/safe/logout') }
+          it { is_expected.to be_redirect.and have_attributes(location: '/safe/logout') }
         end
 
         context "when response relay state is invalid" do
-          let(:params) {super().merge(RelayState: "javascript:alert(1)")}
+          let(:params) { super().merge(RelayState: "javascript:alert(1)") }
 
-          it {is_expected.to be_redirect.and have_attributes(location: '/signed-out') }
+          it { is_expected.to be_redirect.and have_attributes(location: '/signed-out') }
         end
       end
 
@@ -373,15 +373,15 @@ describe OmniAuth::Strategies::SAML, :type => :strategy do
         let(:saml_options) { super().merge(slo_default_relay_state: nil) }
 
         context "when response relay state is valid" do
-          let(:params) {super().merge(RelayState: "/safe/logout")}
+          let(:params) { super().merge(RelayState: "/safe/logout") }
 
-          it {is_expected.to be_redirect.and have_attributes(location: '/safe/logout') }
+          it { is_expected.to be_redirect.and have_attributes(location: '/safe/logout') }
         end
 
         context "when response relay state is invalid" do
-          let(:params) {super().merge(RelayState: "javascript:alert(1)")}
+          let(:params) { super().merge(RelayState: "javascript:alert(1)") }
 
-          it {is_expected.to be_redirect.and have_attributes(location: nil) }
+          it { is_expected.to be_redirect.and have_attributes(location: nil) }
         end
       end
     end

@@ -184,8 +184,6 @@ module OmniAuth
       end
 
       def call_slo_relay_state_validator(validator, relay_state)
-        arity = validator.arity
-
         return validator.call if validator.arity.zero?
         return validator.call(relay_state) if validator.arity == 1
         validator.call(relay_state, request)
