@@ -101,9 +101,18 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
 * `:slo_default_relay_state` - The value to use as default `RelayState` for single log outs. The
   value can be a string, or a `Proc` (or other object responding to `call`). The `request`
   instance will be passed to this callable if it has an arity of 1. If the value is a string,
-  the string will be returned, when the `RelayState` is called. Optional.
+  the string will be returned, when the `RelayState` is called.
+  The value is assumed to be safe and is not validated by `:slo_relay_state_validator`.
+  Optional.
 
 * `:slo_enabled` - Enables or disables Single Logout (SLO). Set to `false` to disable SLO. Defaults to `true`. Optional.
+
+* `:slo_relay_state_validator` - A callable used to validate any `RelayState` before performing the redirect
+  in Single Logout flows. The callable receives the RelayState value and the current Rack request.
+  If unset, the default validator is used. The default validator allows only relative paths beginning
+  with `/` and rejects absolute URLs, invalid URIs, protocol-relative URLs, and other schemes.
+  If the given `RelayState` is considered invalid then the `slo_default_relay_state` value is used for the SLO redirect.
+  Optional.
 
 * `:idp_sso_service_url_runtime_params` - A dynamic mapping of request params that exist
   during the request phase of OmniAuth that should to be sent to the IdP after a specific
