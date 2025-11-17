@@ -101,7 +101,18 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
 * `:slo_default_relay_state` - The value to use as default `RelayState` for single log outs. The
   value can be a string, or a `Proc` (or other object responding to `call`). The `request`
   instance will be passed to this callable if it has an arity of 1. If the value is a string,
-  the string will be returned, when the `RelayState` is called. Optional.
+  the string will be returned, when the `RelayState` is called.
+  The value is assumed to be safe and is not validated by `:slo_relay_state_validator`.
+  Optional.
+
+* `:slo_enabled` - Enables or disables Single Logout (SLO). Set to `false` to disable SLO. Defaults to `true`. Optional.
+
+* `:slo_relay_state_validator` - A callable used to validate any `RelayState` before performing the redirect
+  in Single Logout flows. The callable receives the RelayState value and the current Rack request.
+  If unset, the default validator is used. The default validator allows only relative paths beginning
+  with `/` and rejects absolute URLs, invalid URIs, protocol-relative URLs, and other schemes.
+  If the given `RelayState` is considered invalid then the `slo_default_relay_state` value is used for the SLO redirect.
+  Optional.
 
 * `:idp_sso_service_url_runtime_params` - A dynamic mapping of request params that exist
   during the request phase of OmniAuth that should to be sent to the IdP after a specific
@@ -112,7 +123,7 @@ Note that when [integrating with Devise](#devise-integration), the URL path will
 * `:idp_cert` - The identity provider's certificate in PEM format. Takes precedence
   over the fingerprint option below. This option or `:idp_cert_multi` or `:idp_cert_fingerprint` must
   be present.
-  
+
 * `:idp_cert_multi` - Multiple identity provider certificates in PEM format. Takes precedence
 over the fingerprint option below. This option `:idp_cert` or `:idp_cert_fingerprint` must
 be present.
@@ -192,7 +203,9 @@ Single Logout can be Service Provider initiated or Identity Provider initiated.
 For SP initiated logout, the `idp_slo_service_url` option must be set to the logout url on the IdP,
 and users directed to `user_saml_omniauth_authorize_path + '/spslo'` after logging out locally. For
 IdP initiated logout, logout requests from the IdP should go to `/auth/saml/slo` (this can be
-advertised in metadata by setting the `single_logout_service_url` config option).
+advertised in metadata by setting the `single_logout_service_url` config option). If you wish to
+disable Single Logout entirely (both SP and IdP initiated), set `:slo_enabled => false`; the `/auth/saml/slo`
+and `/auth/saml/spslo` endpoints will then respond with HTTP 501 Not Implemented.
 
 When using Devise as an authentication solution, the SP initiated flow can be integrated
 in the `SessionsController#destroy` action.

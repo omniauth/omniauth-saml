@@ -28,7 +28,26 @@ module OmniAuth
         first_name: ["first_name", "firstname", "firstName"],
         last_name: ["last_name", "lastname", "lastName"]
       }
+      DEFAULT_SLO_RELAY_STATE_VALIDATOR = lambda do |relay_state, _request|
+        return true if relay_state.nil? || relay_state == ""
+
+        return false if relay_state.start_with?("//")
+
+        begin
+          uri = URI.parse(relay_state)
+        rescue URI::Error
+          return false
+        end
+
+        return false unless uri.relative?
+
+        path = uri.path
+        path && path.start_with?("/")
+      end
+
       option :slo_default_relay_state
+      option :slo_enabled, true
+      option :slo_relay_state_validator, DEFAULT_SLO_RELAY_STATE_VALIDATOR
       option :uid_attribute
       option :idp_slo_session_destroy, proc { |_env, session| session.clear }
 
@@ -74,8 +93,12 @@ module OmniAuth
           if on_subpath?(:metadata)
             other_phase_for_metadata
           elsif on_subpath?(:slo)
+            return slo_disabled_response unless slo_enabled?
+
             other_phase_for_slo
           elsif on_subpath?(:spslo)
+            return slo_disabled_response unless slo_enabled?
+
             other_phase_for_spslo
           else
             call_app!
@@ -143,12 +166,35 @@ module OmniAuth
       end
 
       def slo_relay_state
-        return resolve_slo_default_relay_state unless request.params.has_key?("RelayState") && request.params["RelayState"] != ""
+        if request.params.has_key?("RelayState") && request.params["RelayState"] != ""
+          relay_state = request.params["RelayState"]
 
-        validated_relay_state = validate_relay_state(request.params["RelayState"])
-        return validated_relay_state if validated_relay_state
+          return relay_state if valid_slo_relay_state?(relay_state)
+        end
 
-        resolve_slo_default_relay_state
+        default_slo_relay_state
+      end
+
+      def valid_slo_relay_state?(relay_state)
+        validator = options.slo_relay_state_validator
+
+        return !!call_slo_relay_state_validator(validator, relay_state) if validator.respond_to?(:call)
+
+        !!validator
+      end
+
+      def call_slo_relay_state_validator(validator, relay_state)
+        return validator.call if validator.arity.zero?
+        return validator.call(relay_state) if validator.arity == 1
+        validator.call(relay_state, request)
+      end
+
+      def default_slo_relay_state
+        slo_default_relay_state = options.slo_default_relay_state
+
+        return slo_default_relay_state unless slo_default_relay_state.respond_to?(:call)
+        return slo_default_relay_state.call if slo_default_relay_state.arity.zero?
+        slo_default_relay_state.call(request)
       end
 
       def handle_logout_response(raw_response, settings)
@@ -250,6 +296,14 @@ module OmniAuth
         else
           Rack::Response.new("Not Implemented", 501, { "Content-Type" => "text/html" }).finish
         end
+      end
+
+      def slo_enabled?
+        !!options[:slo_enabled]
+      end
+
+      def slo_disabled_response
+        Rack::Response.new("Not Implemented", 501, { "Content-Type" => "text/html" }).finish
       end
 
       def add_request_attributes_to(settings)
