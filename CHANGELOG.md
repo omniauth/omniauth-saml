@@ -1,3 +1,12 @@
+<a name="v2.2.5"></a>
+### v2.2.5 (2023-07-25)
+
+
+#### Features
+
+* Support RelayState binding by default during SSO	 ([a508436](/../../commit/a508436))
+
+
 <a name="v2.2.4"></a>
 ### v2.2.4 (2025-05-14)
 
